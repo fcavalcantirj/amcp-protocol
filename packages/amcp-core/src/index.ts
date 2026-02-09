@@ -36,6 +36,15 @@ export {
   type Keypair 
 } from './crypto.js';
 export { aidFromPublicKey, publicKeyFromAid } from './aid.js';
+export {
+  generateMnemonic,
+  mnemonicToSeed,
+  keypairFromMnemonic,
+  validateMnemonic,
+  strengthToWordCount,
+  wordCountToStrength,
+  type MnemonicStrength
+} from './mnemonic.js';
 
 // Re-export all types from types module
 export * from './types/index.js';

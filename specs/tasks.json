@@ -160,7 +160,7 @@
       "Write tests: invalid mnemonic rejected",
       "Verify: 12-word and 24-word both work"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "BIP-39 Specification",
       "BIP-32 Deterministic Derivation",
