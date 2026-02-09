@@ -313,12 +313,22 @@
       "Add examples for each package",
       "Verify: New contributor can understand protocol from docs"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "Literate Programming (Knuth 1984)",
       "Technical Writing Standards"
     ],
-    "principle": "Programs for humans to read. Protocol spec = contract"
+    "principle": "Programs for humans to read. Protocol spec = contract",
+    "completedAt": "2026-02-09T17:17:00Z",
+    "artifacts": [
+      "README.md (updated with all 4 packages)",
+      "docs/PROTOCOL-SPEC.md (formal specification)",
+      "examples/01-create-agent.ts",
+      "examples/02-checkpoint.ts",
+      "examples/03-recovery.ts",
+      "examples/04-exchange.ts",
+      "examples/README.md"
+    ]
   },
   {
     "category": "validation",
