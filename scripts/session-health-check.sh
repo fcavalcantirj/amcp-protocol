@@ -63,18 +63,20 @@ check_session_health() {
         return 0  # Not necessarily an error
     fi
     
-    # Check last N lines for 400 errors
+    # Check last 5 ASSISTANT messages for errors (not tool results which may contain log text)
+    # Look for stopReason:error at the message level, not in content
     local error_count
-    error_count=$(tail -20 "$latest_session" | grep -c '"stopReason":"error"' || echo 0)
+    error_count=$(tail -10 "$latest_session" | grep '"role":"assistant"' | grep -c '"stopReason":"error"' 2>/dev/null || echo "0")
+    error_count="${error_count//[^0-9]/}"  # Strip non-numeric
     
-    if [[ "$error_count" -ge "$MAX_ERRORS" ]]; then
-        log "FAIL: Session corrupted — $error_count consecutive errors in $latest_session"
+    if [[ -n "$error_count" ]] && [[ "$error_count" -ge "$MAX_ERRORS" ]]; then
+        log "FAIL: Session corrupted — $error_count consecutive assistant errors"
         return 2
     fi
     
-    # Check for 401 auth errors
-    if tail -5 "$latest_session" | grep -q "authentication_error\|401"; then
-        log "FAIL: Auth expired — 401 errors in session"
+    # Check for API-level auth errors in errorMessage field (not tool result content)
+    if tail -5 "$latest_session" | grep '"role":"assistant"' | grep -q '"errorMessage".*authentication_error'; then
+        log "FAIL: Auth expired — API authentication_error"
         return 3
     fi
     
