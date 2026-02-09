@@ -142,3 +142,32 @@ else
 fi
 
 log "🏴‍☠️ SELF-HEALING COMPLETE"
+
+# ============================================================================
+# RESUSCITATION TRACKING
+# ============================================================================
+
+RESUSCITATION_LOG="$HOME/.amcp/resuscitations.jsonl"
+
+track_resuscitation() {
+  local status="$1"
+  local error_context="$2"
+  
+  mkdir -p "$HOME/.amcp"
+  
+  # Append to JSONL log
+  echo "{\"timestamp\": \"$(date -Iseconds)\", \"status\": \"$status\", \"error\": \"$error_context\", \"aid\": \"$AID\"}" >> "$RESUSCITATION_LOG"
+  
+  # Count recent resuscitations (last 24h)
+  local recent_count=$(grep -c "$(date -d '24 hours ago' +%Y-%m-%d)" "$RESUSCITATION_LOG" 2>/dev/null || echo 0)
+  
+  log "📊 Resuscitation tracked. Count (24h): $recent_count"
+  
+  # Alert if too many
+  if [ "$recent_count" -gt 5 ]; then
+    log "⚠️  HIGH RESUSCITATION COUNT: $recent_count in 24h - investigate root cause!"
+  fi
+}
+
+# Track this resuscitation at the end
+track_resuscitation "complete" "$ERROR_CONTEXT"
