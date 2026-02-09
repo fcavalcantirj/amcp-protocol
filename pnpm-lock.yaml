@@ -27,6 +27,31 @@ importers:
         specifier: ^1.6.0
         version: 1.6.1(@types/node@25.2.2)
 
+  packages/amcp-exchange:
+    dependencies:
+      '@amcp/core':
+        specifier: workspace:*
+        version: link:../amcp-core
+      '@amcp/memory':
+        specifier: workspace:*
+        version: link:../amcp-memory
+      '@noble/ciphers':
+        specifier: ^1.2.1
+        version: 1.3.0
+      '@noble/curves':
+        specifier: ^1.9.7
+        version: 1.9.7
+      '@noble/hashes':
+        specifier: ^1.4.0
+        version: 1.8.0
+    devDependencies:
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@25.2.2)
+
   packages/amcp-memory:
     dependencies:
       '@amcp/core':
@@ -48,6 +73,22 @@ importers:
       '@types/node':
         specifier: ^25.2.2
         version: 25.2.2
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@25.2.2)
+
+  packages/amcp-recovery:
+    dependencies:
+      '@amcp/core':
+        specifier: workspace:*
+        version: link:../amcp-core
+      '@amcp/memory':
+        specifier: workspace:*
+        version: link:../amcp-memory
+    devDependencies:
       typescript:
         specifier: ^5.4.0
         version: 5.9.3

@@ -91,3 +91,20 @@ export {
   shouldCheckpoint,
   describePolicy
 } from './checkpoint-policy.js';
+
+// CheckpointSchema - Merkle Automaton (arXiv:2506.13246), IPLD
+export {
+  type AMCPCheckpointContent,
+  type CID,
+  type Signature,
+  type KeyEvent as CheckpointKeyEvent,
+  type KeyEventLog,
+  type Soul,
+  type ServiceIdentity as CheckpointServiceIdentity,
+  type EncryptedBlob,
+  type MemoryObject,
+  type CheckpointMetadata as SchemaCheckpointMetadata,
+  type HumanMarkedMemory,
+  AMCPCheckpointContentSchema,
+  isAMCPCheckpointContent
+} from './checkpoint-schema.js';

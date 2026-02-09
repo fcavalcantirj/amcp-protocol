@@ -5,10 +5,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm -r --workspace-concurrency=1 build",
+    "build:core": "pnpm --filter @amcp/core build",
+    "build:memory": "pnpm --filter @amcp/memory build",
+    "build:recovery": "pnpm --filter @amcp/recovery build",
+    "build:exchange": "pnpm --filter @amcp/exchange build",
     "test": "pnpm -r test",
+    "test:core": "pnpm --filter @amcp/core test",
+    "test:memory": "pnpm --filter @amcp/memory test",
+    "test:recovery": "pnpm --filter @amcp/recovery test",
+    "test:exchange": "pnpm --filter @amcp/exchange test",
     "lint": "eslint packages/*/src",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "typecheck": "pnpm -r exec tsc --noEmit"
   },
   "keywords": [
     "ai-agents",
