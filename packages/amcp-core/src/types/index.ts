@@ -76,3 +76,18 @@ export {
   getCurrentApproach,
   getFailedApproachCount
 } from './work-in-progress.js';
+
+// CheckpointPolicy - Memory Consolidation (Stickgold 2005), Autosave (Teevan 2011)
+export {
+  type TriggerLevel,
+  type TriggerConfig,
+  type ThresholdTriggerConfig,
+  type CheckpointPolicy,
+  DEFAULT_CHECKPOINT_POLICY,
+  AGGRESSIVE_CHECKPOINT_POLICY,
+  MINIMAL_CHECKPOINT_POLICY,
+  createCheckpointPolicy,
+  validateCheckpointPolicy,
+  shouldCheckpoint,
+  describePolicy
+} from './checkpoint-policy.js';

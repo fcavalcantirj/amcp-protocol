@@ -20,7 +20,7 @@
   },
   {
     "category": "schema",
-    "description": "Add MemoryImportance schema \u2014 human-marked priority and durability",
+    "description": "Add MemoryImportance schema — human-marked priority and durability",
     "steps": [
       "Define MemoryImportance interface in types/",
       "Fields: durability (ephemeral|session|persistent|permanent)",
@@ -42,7 +42,7 @@
   },
   {
     "category": "schema",
-    "description": "Add SubjectiveState schema \u2014 capture how agent 'feels'",
+    "description": "Add SubjectiveState schema — capture how agent 'feels'",
     "steps": [
       "Define SubjectiveState interface in types/",
       "Fields: engagement (low|medium|high|flow)",
@@ -54,7 +54,7 @@
       "Write helper function assessSubjectiveState()",
       "Verify: State captured at checkpoint time"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "Affective Computing (Picard 1997)",
       "Appraisal Theory (Lazarus 1991)",
@@ -64,14 +64,14 @@
   },
   {
     "category": "schema",
-    "description": "Add AmbientContext schema \u2014 external environment (Phil's contribution)",
+    "description": "Add AmbientContext schema — external environment (Phil's contribution)",
     "steps": [
       "Define AmbientContext interface in types/",
       "Location: timezone, region (coarse), type (home|work|travel)",
       "Temporal: localTime, dayType, workHours boolean",
       "Calendar: nextEvent summary, busyLevel",
       "Device: type (desktop|mobile|voice), attention level",
-      "privacyLevel: full|summary|none \u2014 controls what gets stored",
+      "privacyLevel: full|summary|none — controls what gets stored",
       "Add to checkpoint schema as memory.ambient",
       "Write tests for privacy filtering",
       "Verify: Ambient context captured with privacy controls"
@@ -86,7 +86,7 @@
   },
   {
     "category": "schema",
-    "description": "Add RelationshipContext schema \u2014 who agent knows",
+    "description": "Add RelationshipContext schema — who agent knows",
     "steps": [
       "Define RelationshipContext interface in types/",
       "Fields: entityId, entityType (human|agent|service), name",
@@ -107,7 +107,7 @@
   },
   {
     "category": "schema",
-    "description": "Add WorkInProgress schema \u2014 tasks mid-stream",
+    "description": "Add WorkInProgress schema — tasks mid-stream",
     "steps": [
       "Define WorkInProgress interface in types/",
       "Fields: taskId, description, status (planning|in_progress|blocked|reviewing)",
@@ -126,7 +126,7 @@
   },
   {
     "category": "policy",
-    "description": "Define CheckpointPolicy \u2014 recommended checkpoint triggers",
+    "description": "Define CheckpointPolicy — recommended checkpoint triggers",
     "steps": [
       "Define CheckpointPolicy interface in types/",
       "MUST triggers: onHumanRequest (always checkpoint when asked)",
@@ -156,7 +156,7 @@
       "keypairFromMnemonic(words: string[]): Keypair - derive Ed25519",
       "validateMnemonic(words: string[]): boolean",
       "Export from index.ts",
-      "Write tests: same mnemonic \u2192 same keypair (deterministic)",
+      "Write tests: same mnemonic → same keypair (deterministic)",
       "Write tests: invalid mnemonic rejected",
       "Verify: 12-word and 24-word both work"
     ],
@@ -179,7 +179,7 @@
       "decryptSecrets(blob: EncryptedBlob, privateKey: Uint8Array): object",
       "EncryptedBlob format: { nonce, ciphertext, ephemeralPub }",
       "Export from index.ts",
-      "Write tests: encrypt \u2192 decrypt roundtrip",
+      "Write tests: encrypt → decrypt roundtrip",
       "Write tests: wrong key fails decryption",
       "Verify: Only holder of private key can decrypt"
     ],
@@ -205,7 +205,7 @@
       "Create src/storage/git.ts - GitBackend (push/pull repo)",
       "Export all from index.ts",
       "Write tests for FilesystemBackend (can test locally)",
-      "Verify: Same data \u2192 same CID across backends",
+      "Verify: Same data → same CID across backends",
       "Verify: Backends are truly interchangeable"
     ],
     "passes": false,
@@ -227,9 +227,9 @@
       "parseRecoveryCard(text): RecoveryCard",
       "generateQRCode(card): string - base64 PNG (optional, can use external lib)",
       "recoverAgent(card, backend): Promise<{ agent, checkpoint, secrets }>",
-      "Full flow: card + backend \u2192 working agent with all secrets",
+      "Full flow: card + backend → working agent with all secrets",
       "verifyRecovery(original, recovered): boolean - compare AIDs",
-      "Write tests: generate card \u2192 recover \u2192 verify matches",
+      "Write tests: generate card → recover → verify matches",
       "Verify: Works with just phrase + CID + storage hint"
     ],
     "passes": false,
@@ -250,7 +250,7 @@
       "importAgent(bundle, phrase): { agent, checkpoint, secrets }",
       "If passphrase provided, double-encrypt bundle (for transport)",
       "validateBundle(bundle): boolean - check integrity",
-      "Write tests: export \u2192 import roundtrip",
+      "Write tests: export → import roundtrip",
       "Verify: Exported bundle works across platforms"
     ],
     "passes": false,
@@ -281,7 +281,7 @@
   },
   {
     "category": "testing",
-    "description": "End-to-end test: create agent \u2192 checkpoint \u2192 wipe \u2192 recover",
+    "description": "End-to-end test: create agent → checkpoint → wipe → recover",
     "steps": [
       "Create test/e2e/full-recovery.test.ts",
       "Test 1: Create agent from mnemonic",
@@ -324,9 +324,9 @@
     "category": "validation",
     "description": "Validate protocol covers all requirements (no lock-in, recovery, continuity)",
     "steps": [
-      "Checklist: Identity continuity (mnemonic \u2192 same AID)",
-      "Checklist: Memory continuity (checkpoint \u2192 same context)",
-      "Checklist: Capability continuity (secrets \u2192 same access)",
+      "Checklist: Identity continuity (mnemonic → same AID)",
+      "Checklist: Memory continuity (checkpoint → same context)",
+      "Checklist: Capability continuity (secrets → same access)",
       "Checklist: No lock-in (test with 3 different backends)",
       "Checklist: Human recovery (phrase + CID + hint = full restore)",
       "Checklist: Interoperability (export from one, import to another)",
