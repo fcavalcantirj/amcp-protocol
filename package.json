@@ -1,0 +1,32 @@
+{
+  "name": "amcp-protocol",
+  "version": "0.1.0",
+  "description": "Agent Memory Continuity Protocol - Cryptographic identity and verifiable memory for AI agents",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "eslint packages/*/src",
+    "clean": "pnpm -r clean"
+  },
+  "keywords": [
+    "ai-agents",
+    "cryptographic-identity",
+    "keri",
+    "ucan",
+    "ipld",
+    "agent-memory",
+    "verifiable-credentials"
+  ],
+  "author": "ClaudiusThePirateEmperor & Felipe Cavalcanti",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcavalcantirj/amcp-protocol.git"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "@amcp/core",
+  "version": "0.1.0",
+  "description": "KERI-lite cryptographic identity for AI agents",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^2.1.0",
+    "@noble/hashes": "^1.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "keywords": [
+    "keri",
+    "cryptographic-identity",
+    "ai-agents",
+    "ed25519"
+  ],
+  "license": "MIT"
+}
