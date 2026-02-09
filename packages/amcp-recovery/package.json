@@ -1,0 +1,34 @@
+{
+  "name": "@amcp/recovery",
+  "version": "0.1.0",
+  "description": "Human recovery flow for AI agent restoration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@amcp/core": "workspace:*",
+    "@amcp/memory": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "keywords": [
+    "agent-recovery",
+    "disaster-recovery",
+    "ai-agents",
+    "mnemonic"
+  ],
+  "license": "MIT"
+}

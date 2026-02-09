@@ -232,7 +232,7 @@
       "Write tests: generate card → recover → verify matches",
       "Verify: Works with just phrase + CID + storage hint"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "NIST SP 800-34 (Disaster Recovery)",
       "GDPR Article 20 (Data Portability)"
