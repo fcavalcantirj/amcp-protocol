@@ -84,7 +84,7 @@ $RECENT_LOGS
 
 Fix the issue and restore the agent. Report what you did."
 
-# 5. Invoke Claude Code
+# 5. Invoke Claude Code with Solvr skill
 log "🤖 Invoking Claude Code for diagnosis and repair..."
 
 # Check which coding agent is available
@@ -99,7 +99,26 @@ else
   exit 1
 fi
 
-log "Using $CODING_AGENT"
+log "Using $CODING_AGENT with Solvr skill"
+
+# Use the solvr CLI to search first
+SOLVR_CLI="$HOME/.claude/skills/solvr/scripts/solvr.sh"
+if [ -x "$SOLVR_CLI" ]; then
+  log "📚 Searching Solvr for similar problems..."
+  SEARCH_RESULTS=$("$SOLVR_CLI" search "$ERROR_CONTEXT" --limit 5 2>&1 || echo "Search failed")
+  log "$SEARCH_RESULTS"
+  
+  # Add search results to prompt
+  PROMPT="$PROMPT
+
+## Solvr Search Results
+\`\`\`
+$SEARCH_RESULTS
+\`\`\`
+
+If a relevant solution exists above, apply it. If not, diagnose and fix, then post the solution with:
+$SOLVR_CLI post problem \"<title>\" \"<description>\" --tags openclaw,gateway,crash"
+fi
 
 # Run the coding agent
 echo "$PROMPT" | $CODING_AGENT --dangerously-skip-permissions 2>&1 | tee -a "$LOG_FILE"
