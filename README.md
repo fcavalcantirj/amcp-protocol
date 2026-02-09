@@ -7,6 +7,122 @@
 
 ---
 
+## 🚀 Quick Start (5 minutes)
+
+### 1. Install
+
+```bash
+git clone https://github.com/fcavalcantirj/amcp-protocol.git
+cd amcp-protocol
+pnpm install && pnpm build
+```
+
+### 2. Create Your Agent Identity
+
+```bash
+source ./scripts/setup-env.sh new
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════════╗
+║  abandon ability able about above absent absorb abstract...  ║
+╚══════════════════════════════════════════════════════════════╝
+
+⚠️  WRITE THESE 12 WORDS ON PAPER. This is your recovery phrase.
+
+AID: BBs3fryhTOhwYv_d5vxG6zZuA8ZC-3ozvpN5y4p8U0j8
+Saved to ~/.amcp/env
+```
+
+### 3. Environment Variables
+
+After setup, these are in `~/.amcp/env`:
+
+```bash
+# Source them
+source ~/.amcp/env
+
+# What you get:
+export AMCP_AID="BBs3fryhTOhwYv_d5vxG6zZuA8ZC-3ozvpN5y4p8U0j8"      # Your identity
+export AMCP_PRIVATE_KEY="dIETNu8wf0XAyiy6lgXguUhTUNo3YAldWtwX8xzLJGw" # Signing key
+export AMCP_NEXT_KEY="gH30CT2ahtBlFrmsBet67SXqGPM1bVYP3ByZN9bp7wk"   # Pre-rotation key
+export AMCP_STORAGE_BACKEND="ipfs"                                    # or: filesystem, git, s3
+export AMCP_IPFS_GATEWAY="https://gateway.pinata.cloud/ipfs"
+export AMCP_FS_PATH="$HOME/.amcp/checkpoints"
+
+# Optional: IPFS pinning (for durable storage)
+export PINATA_JWT="your_jwt"           # Get free at https://app.pinata.cloud
+export PINATA_API_KEY="your_api_key"
+export PINATA_SECRET="your_secret"
+```
+
+### 4. Create First Checkpoint
+
+```typescript
+// save as: my-agent.ts
+import { createAgent, generateMnemonic, keypairFromMnemonic } from '@amcp/core';
+import { createCheckpoint, FilesystemBackend } from '@amcp/memory';
+import { formatRecoveryCard, generateRecoveryCard } from '@amcp/recovery';
+
+const mnemonic = generateMnemonic(128);  // 12 words - SAVE THESE!
+console.log('Recovery phrase:', mnemonic.join(' '));
+
+const agent = await createAgent({ 
+  keypair: keypairFromMnemonic(mnemonic),
+  name: 'MyAgent' 
+});
+console.log('AID:', agent.aid);
+
+const checkpoint = await createCheckpoint(agent, {
+  version: '1.0.0',
+  aid: agent.aid,
+  kel: agent.kel,
+  soul: { name: 'MyAgent', principles: ['Be helpful'], voice: 'Friendly', northStar: 'Help humans' },
+  services: [],
+  secrets: {},
+  memory: { entries: [], state: {}, ambient: {}, relationships: [], workInProgress: [], humanMarked: [] },
+  metadata: { platform: 'example', platformVersion: '1.0', trigger: 'manual', sessionCount: 1 }
+});
+console.log('Checkpoint CID:', checkpoint.cid);
+
+// Save locally
+const storage = new FilesystemBackend({ basePath: `${process.env.HOME}/.amcp/checkpoints` });
+await storage.put(checkpoint.data);
+
+// Print recovery card
+const card = generateRecoveryCard(mnemonic, agent.aid, checkpoint.cid, 'filesystem');
+console.log(formatRecoveryCard(card));
+```
+
+Run it:
+```bash
+npx tsx my-agent.ts
+```
+
+### 5. Recovery (After Disaster)
+
+```bash
+# Only need: 12 words + CID
+source ./scripts/setup-env.sh restore "your twelve word mnemonic phrase" "bafkreiXXX..."
+
+# Agent fully restored with all memories!
+```
+
+---
+
+## Recovery Formula
+
+```
+12-word mnemonic + Checkpoint CID = Full Agent Recovery
+```
+
+- **No vendor lock-in**: CID works on ANY IPFS gateway
+- **No platform dependency**: Run on any machine with Node.js
+- **Full state**: Identity + memories + encrypted secrets
+
+---
+
 ## The Problem
 
 AI agents today suffer from:
