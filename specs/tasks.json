@@ -208,7 +208,7 @@
       "Verify: Same data → same CID across backends",
       "Verify: Backends are truly interchangeable"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "SOLID Principles (Martin 2000)",
       "Content-Addressed Storage (Benet/IPFS 2014)",
