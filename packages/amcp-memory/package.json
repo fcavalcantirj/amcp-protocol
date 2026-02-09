@@ -18,10 +18,13 @@
   },
   "dependencies": {
     "@amcp/core": "workspace:*",
+    "@noble/ciphers": "^1.2.1",
+    "@noble/curves": "^1.8.1",
     "@noble/hashes": "^1.4.0",
     "multiformats": "^13.1.0"
   },
   "devDependencies": {
+    "@types/node": "^25.2.2",
     "typescript": "^5.4.0",
     "vitest": "^1.6.0"
   },

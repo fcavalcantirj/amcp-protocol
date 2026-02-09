@@ -183,7 +183,7 @@
       "Write tests: wrong key fails decryption",
       "Verify: Only holder of private key can decrypt"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "X25519 (RFC 7748)",
       "ChaCha20-Poly1305 (RFC 8439)",
