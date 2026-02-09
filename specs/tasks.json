@@ -137,7 +137,7 @@
       "Policy is RECOMMENDATION, not enforcement",
       "Verify: Default policy documented and reasonable"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "Memory Consolidation Windows (Stickgold 2005)",
       "Autosave Research (Teevan 2011)",
