@@ -11,6 +11,7 @@
     "build:recovery": "pnpm --filter @amcp/recovery build",
     "build:exchange": "pnpm --filter @amcp/exchange build",
     "test": "pnpm -r test",
+    "test:e2e": "vitest run --config test/e2e/vitest.config.ts",
     "test:core": "pnpm --filter @amcp/core test",
     "test:memory": "pnpm --filter @amcp/memory test",
     "test:recovery": "pnpm --filter @amcp/recovery test",
@@ -37,5 +38,8 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
   }
 }
