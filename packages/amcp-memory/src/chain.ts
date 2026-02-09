@@ -4,7 +4,7 @@
  * A memory chain is a linked list of checkpoints, each pointing to its predecessor.
  */
 
-import type { Agent, KeyEventLog } from '@amcp/core';
+import { type Agent, type KeyEventLog } from '@amcp/core';
 import { createCheckpoint, verifyCheckpoint, type MemoryCheckpoint, type CheckpointMetadata } from './checkpoint.js';
 import { type CID } from './cid.js';
 

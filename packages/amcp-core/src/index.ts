@@ -5,7 +5,17 @@
  * for agent identity that is portable and verifiable.
  */
 
-export { createAgent, loadAgent, type Agent, type AgentConfig } from './agent.js';
+export { 
+  createAgent, 
+  loadAgent, 
+  serializeAgent,
+  rotateKeys,
+  signWithAgent,
+  verifyAgentSignature,
+  type Agent, 
+  type AgentConfig,
+  type SerializedAgent
+} from './agent.js';
 export { 
   type AID, 
   type KeyEvent, 
@@ -21,6 +31,8 @@ export {
   generateKeypair, 
   sign, 
   verify,
+  toBase64url,
+  fromBase64url,
   type Keypair 
 } from './crypto.js';
 export { aidFromPublicKey, publicKeyFromAid } from './aid.js';

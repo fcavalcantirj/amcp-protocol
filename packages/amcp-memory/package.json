@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@amcp/core": "workspace:*",
+    "@noble/hashes": "^1.4.0",
     "multiformats": "^13.1.0"
   },
   "devDependencies": {

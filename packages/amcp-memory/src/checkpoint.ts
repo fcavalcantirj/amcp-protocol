@@ -4,7 +4,7 @@
  * A checkpoint is a signed snapshot of agent memory at a point in time.
  */
 
-import type { Agent, AID, KeyEventLog } from '@amcp/core';
+import { signWithAgent, verifyAgentSignature, type Agent, type AID, type KeyEventLog } from '@amcp/core';
 import { computeJSONCID, type CID } from './cid.js';
 
 export interface CheckpointMetadata {
@@ -55,9 +55,6 @@ export async function createCheckpoint(
   prior: CID | null,
   metadata: CheckpointMetadata
 ): Promise<{ checkpoint: MemoryCheckpoint; contentCid: CID }> {
-  // Import dynamically to avoid circular deps
-  const { signWithAgent, toBase64url } = await import('@amcp/core');
-  
   // Compute CID of content
   const contentCid = computeJSONCID(content);
   
@@ -93,8 +90,6 @@ export async function verifyCheckpoint(
   checkpoint: MemoryCheckpoint,
   kel: KeyEventLog
 ): Promise<boolean> {
-  const { verifyAgentSignature } = await import('@amcp/core');
-  
   // Reconstruct unsigned payload
   const unsigned: UnsignedCheckpoint = {
     aid: checkpoint.aid,
