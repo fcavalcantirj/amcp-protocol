@@ -1,0 +1,343 @@
+[
+  {
+    "category": "design",
+    "description": "Define checkpoint content schema (protocol-level, version 1.0)",
+    "steps": [
+      "Create types/checkpoint-schema.ts with AMCPCheckpointContent interface",
+      "Required fields: version, aid, kel, services, secrets, memory, metadata",
+      "Memory object: soul, context, pending (implementation fills these)",
+      "Add JSON Schema for validation",
+      "Document in README what each field means",
+      "Verify: Schema is complete for full recovery",
+      "Verify: Schema is minimal (no unnecessary fields)"
+    ],
+    "passes": true,
+    "research": [
+      "Merkle Automaton (arXiv:2506.13246)",
+      "IPLD Specification"
+    ],
+    "principle": "Memory as ledger, content-addressed, cryptographically anchored"
+  },
+  {
+    "category": "schema",
+    "description": "Add MemoryImportance schema \u2014 human-marked priority and durability",
+    "steps": [
+      "Define MemoryImportance interface in types/",
+      "Fields: durability (ephemeral|session|persistent|permanent)",
+      "Fields: priority (low|normal|high|critical)",
+      "Fields: scope (optional project/relationship context)",
+      "Fields: humanMarked (boolean), markedAt (timestamp)",
+      "Add to MemoryEntry as optional importance field",
+      "Update checkpoint schema to include humanMarked memories array",
+      "Write tests for importance filtering and durability",
+      "Verify: Human can mark memory as 'never forget'"
+    ],
+    "passes": true,
+    "research": [
+      "Levels of Processing (Craik & Lockhart 1972)",
+      "Memory Consolidation (McGaugh 2000)",
+      "Forgetting Curve (Ebbinghaus 1885)"
+    ],
+    "principle": "Deeper processing = more durable memory. Human marking = emotional salience signal"
+  },
+  {
+    "category": "schema",
+    "description": "Add SubjectiveState schema \u2014 capture how agent 'feels'",
+    "steps": [
+      "Define SubjectiveState interface in types/",
+      "Fields: engagement (low|medium|high|flow)",
+      "Fields: confidence (0-1 number)",
+      "Fields: momentum (stuck|grinding|progressing|flowing)",
+      "Fields: alignment (drifting|aligned|deeply_aligned)",
+      "Fields: notes (optional freeform reflection)",
+      "Add to checkpoint schema as memory.state",
+      "Write helper function assessSubjectiveState()",
+      "Verify: State captured at checkpoint time"
+    ],
+    "passes": false,
+    "research": [
+      "Affective Computing (Picard 1997)",
+      "Appraisal Theory (Lazarus 1991)",
+      "Flow State (Csikszentmihalyi 1990)"
+    ],
+    "principle": "Emotional state affects cognition. Recovery should restore meta-cognitive awareness"
+  },
+  {
+    "category": "schema",
+    "description": "Add AmbientContext schema \u2014 external environment (Phil's contribution)",
+    "steps": [
+      "Define AmbientContext interface in types/",
+      "Location: timezone, region (coarse), type (home|work|travel)",
+      "Temporal: localTime, dayType, workHours boolean",
+      "Calendar: nextEvent summary, busyLevel",
+      "Device: type (desktop|mobile|voice), attention level",
+      "privacyLevel: full|summary|none \u2014 controls what gets stored",
+      "Add to checkpoint schema as memory.ambient",
+      "Write tests for privacy filtering",
+      "Verify: Ambient context captured with privacy controls"
+    ],
+    "passes": false,
+    "research": [
+      "Context-Aware Computing (Dey 2001)",
+      "Situated Cognition (Brown et al 1989)",
+      "Privacy-Aware Context (Hong & Landay 2004)"
+    ],
+    "principle": "Knowledge is situated. Context must be captured and privacy-controlled"
+  },
+  {
+    "category": "schema",
+    "description": "Add RelationshipContext schema \u2014 who agent knows",
+    "steps": [
+      "Define RelationshipContext interface in types/",
+      "Fields: entityId, entityType (human|agent|service), name",
+      "Fields: rapport (new|familiar|trusted|close)",
+      "Preferences: communicationStyle, detailLevel, timezone",
+      "History: firstInteraction, lastInteraction, count, topTopics",
+      "Add to checkpoint schema as memory.relationships array",
+      "Write helper function updateRelationship()",
+      "Verify: Relationships persist across checkpoints"
+    ],
+    "passes": false,
+    "research": [
+      "Social Memory / Dunbar's Number (1998)",
+      "Theory of Mind (Premack 1978)",
+      "Trust Calibration (Lee & See 2004)"
+    ],
+    "principle": "Relationship tracking is fundamental to intelligence. Trust must be calibrated"
+  },
+  {
+    "category": "schema",
+    "description": "Add WorkInProgress schema \u2014 tasks mid-stream",
+    "steps": [
+      "Define WorkInProgress interface in types/",
+      "Fields: taskId, description, status (planning|in_progress|blocked|reviewing)",
+      "Fields: startedAt, approaches array with status",
+      "Fields: blockers array, nextStep, relatedMemories (CIDs)",
+      "Add to checkpoint schema as memory.workInProgress array",
+      "Write helper functions: startTask, updateProgress, completeTask",
+      "Verify: Can resume work from checkpoint"
+    ],
+    "passes": false,
+    "research": [
+      "Zeigarnik Effect (1927)",
+      "Task Switching Costs (Monsell 2003)"
+    ],
+    "principle": "Incomplete tasks are remembered better. Crash = forced switch, WIP reduces reload cost"
+  },
+  {
+    "category": "policy",
+    "description": "Define CheckpointPolicy \u2014 recommended checkpoint triggers",
+    "steps": [
+      "Define CheckpointPolicy interface in types/",
+      "MUST triggers: onHumanRequest (always checkpoint when asked)",
+      "SHOULD triggers: onSessionEnd, onContextThreshold (default 85%)",
+      "MAY triggers: onSignificantLearning, onStateChange, onError",
+      "Create default policy with sane defaults",
+      "Document policy in PROTOCOL-SPEC.md",
+      "Policy is RECOMMENDATION, not enforcement",
+      "Verify: Default policy documented and reasonable"
+    ],
+    "passes": false,
+    "research": [
+      "Memory Consolidation Windows (Stickgold 2005)",
+      "Autosave Research (Teevan 2011)",
+      "WAL Checkpointing"
+    ],
+    "principle": "Session end = consolidation window. Event + time triggers optimize tradeoff"
+  },
+  {
+    "category": "core",
+    "description": "Add mnemonic support to @amcp/core (BIP-39 compatible)",
+    "steps": [
+      "Add @scure/bip39 dependency (audited, minimal)",
+      "Create src/mnemonic.ts",
+      "generateMnemonic(strength?: 128|256): string[] - returns word array",
+      "mnemonicToSeed(words: string[]): Uint8Array - deterministic",
+      "keypairFromMnemonic(words: string[]): Keypair - derive Ed25519",
+      "validateMnemonic(words: string[]): boolean",
+      "Export from index.ts",
+      "Write tests: same mnemonic \u2192 same keypair (deterministic)",
+      "Write tests: invalid mnemonic rejected",
+      "Verify: 12-word and 24-word both work"
+    ],
+    "passes": false,
+    "research": [
+      "BIP-39 Specification",
+      "BIP-32 Deterministic Derivation",
+      "Usability (Bonneau 2012)"
+    ],
+    "principle": "Mnemonic phrases: human-memorable yet cryptographically secure"
+  },
+  {
+    "category": "memory",
+    "description": "Add encrypted secrets blob to @amcp/memory",
+    "steps": [
+      "Add @noble/ciphers dependency for X25519 + ChaCha20-Poly1305",
+      "Create src/encryption.ts",
+      "ed25519ToX25519(edPub, edPriv): {x25519Pub, x25519Priv} - key conversion",
+      "encryptSecrets(secrets: object, recipientPubKey: Uint8Array): EncryptedBlob",
+      "decryptSecrets(blob: EncryptedBlob, privateKey: Uint8Array): object",
+      "EncryptedBlob format: { nonce, ciphertext, ephemeralPub }",
+      "Export from index.ts",
+      "Write tests: encrypt \u2192 decrypt roundtrip",
+      "Write tests: wrong key fails decryption",
+      "Verify: Only holder of private key can decrypt"
+    ],
+    "passes": false,
+    "research": [
+      "X25519 (RFC 7748)",
+      "ChaCha20-Poly1305 (RFC 8439)",
+      "Key Separation (Rogaway 2004)"
+    ],
+    "principle": "Modern crypto, separate keys for signing vs encryption"
+  },
+  {
+    "category": "memory",
+    "description": "Define StorageBackend interface and implement backends",
+    "steps": [
+      "Create src/storage/interface.ts with StorageBackend interface",
+      "Interface: put(data: Uint8Array): Promise<CID>",
+      "Interface: get(cid: CID): Promise<Uint8Array>",
+      "Interface: list(): Promise<CID[]>",
+      "Interface: delete(cid: CID): Promise<void> (optional)",
+      "Create src/storage/filesystem.ts - FilesystemBackend",
+      "Create src/storage/ipfs.ts - IPFSBackend (public gateways)",
+      "Create src/storage/git.ts - GitBackend (push/pull repo)",
+      "Export all from index.ts",
+      "Write tests for FilesystemBackend (can test locally)",
+      "Verify: Same data \u2192 same CID across backends",
+      "Verify: Backends are truly interchangeable"
+    ],
+    "passes": false,
+    "research": [
+      "SOLID Principles (Martin 2000)",
+      "Content-Addressed Storage (Benet/IPFS 2014)",
+      "Repository Pattern (Fowler 2002)"
+    ],
+    "principle": "Depend on abstractions. Same CID regardless of backend"
+  },
+  {
+    "category": "recovery",
+    "description": "Create @amcp/recovery package for human recovery flow",
+    "steps": [
+      "Create packages/amcp-recovery/ with package.json, tsconfig",
+      "Define RecoveryCard interface: phrase, aid, checkpoint, storageHint, created",
+      "generateRecoveryCard(agent, checkpointCid, storageHint): RecoveryCard",
+      "formatRecoveryCard(card): string - human-readable text format",
+      "parseRecoveryCard(text): RecoveryCard",
+      "generateQRCode(card): string - base64 PNG (optional, can use external lib)",
+      "recoverAgent(card, backend): Promise<{ agent, checkpoint, secrets }>",
+      "Full flow: card + backend \u2192 working agent with all secrets",
+      "verifyRecovery(original, recovered): boolean - compare AIDs",
+      "Write tests: generate card \u2192 recover \u2192 verify matches",
+      "Verify: Works with just phrase + CID + storage hint"
+    ],
+    "passes": false,
+    "research": [
+      "NIST SP 800-34 (Disaster Recovery)",
+      "GDPR Article 20 (Data Portability)"
+    ],
+    "principle": "Recovery = documented procedure. Agents own their data"
+  },
+  {
+    "category": "exchange",
+    "description": "Create @amcp/exchange package for interoperability",
+    "steps": [
+      "Create packages/amcp-exchange/ with package.json, tsconfig",
+      "Define ServiceIdentity interface: service, identifier, credentialRef",
+      "Define ExportBundle: encrypted blob containing agent + checkpoint + secrets",
+      "exportAgent(agent, checkpoint, secrets, passphrase?): Uint8Array",
+      "importAgent(bundle, phrase): { agent, checkpoint, secrets }",
+      "If passphrase provided, double-encrypt bundle (for transport)",
+      "validateBundle(bundle): boolean - check integrity",
+      "Write tests: export \u2192 import roundtrip",
+      "Verify: Exported bundle works across platforms"
+    ],
+    "passes": false,
+    "research": [
+      "NIST SP 800-34",
+      "IEEE Interoperability Standards"
+    ],
+    "principle": "Export/import enables portability and collaboration"
+  },
+  {
+    "category": "integration",
+    "description": "Update monorepo structure and inter-package dependencies",
+    "steps": [
+      "Update pnpm-workspace.yaml to include new packages",
+      "Add @amcp/recovery depends on @amcp/core, @amcp/memory",
+      "Add @amcp/exchange depends on @amcp/core, @amcp/memory",
+      "Update root package.json scripts for all packages",
+      "Run pnpm install to link packages",
+      "Verify: All packages build successfully",
+      "Verify: Cross-package imports work"
+    ],
+    "passes": false,
+    "research": [
+      "Monorepo Best Practices",
+      "Dependency Management"
+    ],
+    "principle": "Clean package boundaries, explicit dependencies"
+  },
+  {
+    "category": "testing",
+    "description": "End-to-end test: create agent \u2192 checkpoint \u2192 wipe \u2192 recover",
+    "steps": [
+      "Create test/e2e/full-recovery.test.ts",
+      "Test 1: Create agent from mnemonic",
+      "Test 2: Create checkpoint with secrets",
+      "Test 3: Store to FilesystemBackend",
+      "Test 4: Delete all local state (simulate wipe)",
+      "Test 5: Recover from mnemonic + CID",
+      "Test 6: Verify recovered agent matches original",
+      "Test 7: Verify secrets are accessible",
+      "Run with each backend type (filesystem, then mock IPFS/git)",
+      "Verify: Full continuity preserved"
+    ],
+    "passes": false,
+    "research": [
+      "Test-Driven Development (Beck 2003)",
+      "E2E Testing Patterns"
+    ],
+    "principle": "Tests define the contract. E2E validates full recovery"
+  },
+  {
+    "category": "documentation",
+    "description": "Update README and create protocol specification document",
+    "steps": [
+      "Update root README.md with new packages",
+      "Document recovery flow with diagrams",
+      "Create docs/PROTOCOL-SPEC.md with formal specification",
+      "Include: checkpoint schema, encryption scheme, storage interface",
+      "Include: recovery card format, exchange bundle format",
+      "Add examples for each package",
+      "Verify: New contributor can understand protocol from docs"
+    ],
+    "passes": false,
+    "research": [
+      "Literate Programming (Knuth 1984)",
+      "Technical Writing Standards"
+    ],
+    "principle": "Programs for humans to read. Protocol spec = contract"
+  },
+  {
+    "category": "validation",
+    "description": "Validate protocol covers all requirements (no lock-in, recovery, continuity)",
+    "steps": [
+      "Checklist: Identity continuity (mnemonic \u2192 same AID)",
+      "Checklist: Memory continuity (checkpoint \u2192 same context)",
+      "Checklist: Capability continuity (secrets \u2192 same access)",
+      "Checklist: No lock-in (test with 3 different backends)",
+      "Checklist: Human recovery (phrase + CID + hint = full restore)",
+      "Checklist: Interoperability (export from one, import to another)",
+      "Document any remaining gaps",
+      "Verify: ALL requirements from meditation doc are met"
+    ],
+    "passes": false,
+    "research": [
+      "Requirements Traceability (IEEE 830)",
+      "Validation Testing"
+    ],
+    "principle": "Every requirement addressed, every task mapped, no gaps"
+  }
+]
