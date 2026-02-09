@@ -76,7 +76,7 @@
       "Write tests for privacy filtering",
       "Verify: Ambient context captured with privacy controls"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "Context-Aware Computing (Dey 2001)",
       "Situated Cognition (Brown et al 1989)",
@@ -97,7 +97,7 @@
       "Write helper function updateRelationship()",
       "Verify: Relationships persist across checkpoints"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "Social Memory / Dunbar's Number (1998)",
       "Theory of Mind (Premack 1978)",
@@ -117,7 +117,7 @@
       "Write helper functions: startTask, updateProgress, completeTask",
       "Verify: Can resume work from checkpoint"
     ],
-    "passes": false,
+    "passes": true,
     "research": [
       "Zeigarnik Effect (1927)",
       "Task Switching Costs (Monsell 2003)"

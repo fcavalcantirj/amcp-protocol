@@ -1,9 +1,66 @@
 /**
  * AMCP Core Types
  * 
- * Type definitions for agent memory checkpointing protocol.
+ * Research-backed schema definitions for agent memory and state
  */
 
+// SubjectiveState - Affective Computing (Picard 1997)
+export {
+  type SubjectiveState,
+  type SubjectiveStateAssessment,
+  type EngagementLevel,
+  type Momentum,
+  type Alignment,
+  assessSubjectiveState,
+  createSubjectiveStateAt,
+  isProductiveState,
+  needsIntervention
+} from './subjective-state.js';
+
+// MemoryImportance - Levels of Processing (Craik & Lockhart 1972)
+export {
+  type MemoryDurability,
+  type MemoryPriority,
+  type Timestamp,
+  type MemoryImportance,
+  DEFAULT_IMPORTANCE,
+  NEVER_FORGET_IMPORTANCE,
+  markImportant,
+  inferImportance,
+  compareImportance,
+  filterByDurability,
+  getHumanMarked
+} from './memory-importance.js';
+
+// RelationshipContext - Social Memory (Dunbar 1998), Theory of Mind (Premack 1978)
+export {
+  type EntityType,
+  type RapportLevel,
+  type RelationshipPreferences,
+  type RelationshipHistory,
+  type TrustCalibration,
+  type RelationshipContext,
+  type RelationshipUpdate,
+  createRelationship,
+  updateRelationship,
+  suggestRapportUpgrade,
+  getDunbarLayer
+} from './relationship-context.js';
+
+// AmbientContext - Context-Aware Computing (Dey 2001)
+export {
+  type LocationContext,
+  type TemporalContext,
+  type CalendarContext,
+  type DeviceContext,
+  type PrivacyLevel,
+  type AmbientContext,
+  filterByPrivacy,
+  createAmbientContext,
+  hasContextData
+} from './ambient-context.js';
+
+// WorkInProgress - Zeigarnik Effect (1927)
 export {
   type WorkInProgress,
   type Approach,
@@ -17,5 +74,5 @@ export {
   completeTask,
   isBlocked,
   getCurrentApproach,
-  getFailedApproachCount,
+  getFailedApproachCount
 } from './work-in-progress.js';
