@@ -1,0 +1,14 @@
+# /etc/systemd/system/amcp-watchdog.timer
+#
+# Runs watchdog check every 5 minutes
+
+[Unit]
+Description=AMCP Watchdog Timer
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

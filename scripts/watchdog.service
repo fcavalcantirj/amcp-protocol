@@ -1,0 +1,23 @@
+# /etc/systemd/system/amcp-watchdog.service
+#
+# AMCP Self-Healing Watchdog
+# Monitors OpenClaw gateway, triggers self-heal on failure.
+#
+# Install:
+#   sudo cp watchdog.service /etc/systemd/system/amcp-watchdog.service
+#   sudo cp watchdog.timer /etc/systemd/system/amcp-watchdog.timer
+#   sudo systemctl enable --now amcp-watchdog.timer
+
+[Unit]
+Description=AMCP Self-Healing Watchdog
+After=network.target
+
+[Service]
+Type=oneshot
+User=clawdbot
+Environment=HOME=/home/clawdbot
+Environment=CLAWD_DIR=/home/clawdbot/clawd
+ExecStart=/home/clawdbot/clawd/amcp-protocol/scripts/watchdog-check.sh
+
+[Install]
+WantedBy=multi-user.target
