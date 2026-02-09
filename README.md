@@ -378,6 +378,8 @@ import type {
 
 ## Documentation
 
+- [**Getting Started**](./docs/GETTING-STARTED.md) — Set up your agent identity in 5 minutes
+- [**Environment Variables**](./ENVIRONMENT.md) — Full env var reference with examples
 - [**Protocol Specification**](./docs/PROTOCOL-SPEC.md) — Complete formal specification
 - [**Research Backing**](./specs/research-backing.md) — Scientific citations for every design decision
 - [**Examples**](./examples/) — Working code samples
