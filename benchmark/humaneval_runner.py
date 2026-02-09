@@ -58,6 +58,20 @@ STANDARD_SUBSET = QUICK_SUBSET + [
     "HumanEval/30",  # get_positive
 ]
 
+# Brutal: Known hard problems that LLMs frequently fail
+BRUTAL_SUBSET = [
+    "HumanEval/129",  # minPath - k-length minimum path in grid
+    "HumanEval/109",  # move_one_ball - sorted array rotation check
+    "HumanEval/68",   # pluck - smallest even with index
+    "HumanEval/160",  # do_algebra - expression evaluation with precedence
+    "HumanEval/127",  # intersection - interval intersection prime check
+    "HumanEval/123",  # get_odd_collatz - Collatz sequence odds
+    "HumanEval/115",  # max_fill - bucket filling problem
+    "HumanEval/93",   # encode - swap case + vowel shift
+    "HumanEval/91",   # is_bored - sentence parsing for "I" starts
+    "HumanEval/84",   # solve - digit sum to binary
+]
+
 
 def load_solutions(solutions_file: str) -> dict[str, str]:
     """Load solutions from JSON file."""
@@ -110,6 +124,8 @@ def run_benchmark(
         ids_to_run = QUICK_SUBSET
     elif tier == "standard":
         ids_to_run = STANDARD_SUBSET
+    elif tier == "brutal":
+        ids_to_run = BRUTAL_SUBSET
     else:  # full
         ids_to_run = list(problems.keys())
     
@@ -174,7 +190,7 @@ def main():
     parser = argparse.ArgumentParser(description="AMCP HumanEval Benchmark Runner")
     parser.add_argument("--solutions", required=True, help="JSON file with solutions")
     parser.add_argument("--output", help="Output JSON file (default: stdout)")
-    parser.add_argument("--tier", choices=["quick", "standard", "full"], default="quick")
+    parser.add_argument("--tier", choices=["quick", "standard", "brutal", "full"], default="quick")
     parser.add_argument("--problem-ids", help="Comma-separated problem IDs to run")
     
     args = parser.parse_args()

@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "generated_by": "ClaudiusThePirateEmperor",
+    "timestamp": "2026-02-09T22:25:00Z",
+    "method": "Fresh solutions for BRUTAL tier - no peeking",
+    "difficulty": "HARD - known LLM failure problems"
+  },
+
+  "HumanEval/129": "    n = len(grid)\n    # Find position of 1 (minimum value)\n    for i in range(n):\n        for j in range(n):\n            if grid[i][j] == 1:\n                pos = (i, j)\n                break\n    \n    # Find minimum neighbor of cell with value 1\n    def get_neighbors(r, c):\n        neighbors = []\n        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < n and 0 <= nc < n:\n                neighbors.append(grid[nr][nc])\n        return neighbors\n    \n    min_neighbor = min(get_neighbors(pos[0], pos[1]))\n    \n    # Build path: alternate between 1 and its minimum neighbor\n    result = []\n    for i in range(k):\n        if i % 2 == 0:\n            result.append(1)\n        else:\n            result.append(min_neighbor)\n    return result\n",
+
+  "HumanEval/109": "    if not arr:\n        return True\n    n = len(arr)\n    # Count number of \"breaks\" where arr[i] > arr[i+1]\n    breaks = 0\n    break_pos = -1\n    for i in range(n):\n        if arr[i] > arr[(i + 1) % n]:\n            breaks += 1\n            break_pos = i\n    # Can be sorted by rotation iff at most 1 break\n    return breaks <= 1\n",
+
+  "HumanEval/68": "    if not arr:\n        return []\n    \n    min_even = float('inf')\n    min_idx = -1\n    \n    for i, val in enumerate(arr):\n        if val % 2 == 0 and val < min_even:\n            min_even = val\n            min_idx = i\n    \n    if min_idx == -1:\n        return []\n    return [min_even, min_idx]\n",
+
+  "HumanEval/160": "    # Build expression string and evaluate\n    expression = str(operand[0])\n    for i, op in enumerate(operator):\n        expression += f\" {op} {operand[i + 1]}\"\n    return eval(expression)\n",
+
+  "HumanEval/127": "    def is_prime(n):\n        if n < 2:\n            return False\n        if n == 2:\n            return True\n        if n % 2 == 0:\n            return False\n        for i in range(3, int(n**0.5) + 1, 2):\n            if n % i == 0:\n                return False\n        return True\n    \n    # Find intersection\n    start = max(interval1[0], interval2[0])\n    end = min(interval1[1], interval2[1])\n    \n    if start > end:\n        return \"NO\"\n    \n    length = end - start\n    return \"YES\" if is_prime(length) else \"NO\"\n",
+
+  "HumanEval/123": "    if n == 1:\n        return [1]\n    \n    odds = set()\n    current = n\n    while current != 1:\n        if current % 2 == 1:\n            odds.add(current)\n        if current % 2 == 0:\n            current = current // 2\n        else:\n            current = 3 * current + 1\n    odds.add(1)\n    return sorted(list(odds))\n",
+
+  "HumanEval/115": "    import math\n    total = 0\n    for row in grid:\n        water = sum(row)\n        if water > 0:\n            total += math.ceil(water / capacity)\n    return total\n",
+
+  "HumanEval/93": "    vowels = 'aeiouAEIOU'\n    vowel_map = {'a': 'c', 'e': 'g', 'i': 'k', 'o': 'q', 'u': 'w',\n                 'A': 'C', 'E': 'G', 'I': 'K', 'O': 'Q', 'U': 'W'}\n    \n    result = []\n    for c in message:\n        if c in vowels:\n            # Replace vowel with letter 2 places ahead, then swap case\n            new_c = vowel_map[c]\n            result.append(new_c.lower() if new_c.isupper() else new_c.upper())\n        elif c.isalpha():\n            # Just swap case\n            result.append(c.lower() if c.isupper() else c.upper())\n        else:\n            result.append(c)\n    return ''.join(result)\n",
+
+  "HumanEval/91": "    import re\n    # Split by sentence delimiters\n    sentences = re.split(r'[.?!]', S)\n    count = 0\n    for sentence in sentences:\n        stripped = sentence.strip()\n        if stripped.startswith('I ') or stripped == 'I':\n            count += 1\n    return count\n",
+
+  "HumanEval/84": "    digit_sum = sum(int(d) for d in str(N))\n    return bin(digit_sum)[2:]\n"
+}

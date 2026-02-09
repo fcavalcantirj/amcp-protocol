@@ -108,3 +108,22 @@ export {
   AMCPCheckpointContentSchema,
   isAMCPCheckpointContent
 } from './checkpoint-schema.js';
+
+// EvolutionMetrics - Agent improvement over time
+// Research: LoCoMo (Snap), Letta Memory Benchmark, Terminal-Bench
+export {
+  type EfficiencyMetrics,
+  type MemoryFact,
+  type MemoryIntegrityTest,
+  type MemoryIntegrityResult,
+  type DocumentedMistake,
+  type ErrorNonRepetitionResult,
+  type HumanPreference,
+  type PreferenceAccuracyResult,
+  type PriorWork,
+  type ContinuityResult,
+  type EvolutionScore,
+  EVOLUTION_WEIGHTS,
+  calculateCompositeScore,
+  createEmptyEvolutionScore
+} from './evolution-metrics.js';
