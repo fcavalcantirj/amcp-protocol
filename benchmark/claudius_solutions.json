@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "generated_by": "ClaudiusThePirateEmperor",
+    "timestamp": "2026-02-09T22:22:00Z",
+    "method": "Fresh solutions without viewing canonical answers",
+    "purpose": "TRUE baseline for AMCP skill benchmarking"
+  },
+
+  "HumanEval/0": "    for i in range(len(numbers)):\n        for j in range(i + 1, len(numbers)):\n            if abs(numbers[i] - numbers[j]) < threshold:\n                return True\n    return False\n",
+
+  "HumanEval/1": "    result = []\n    current = []\n    depth = 0\n    for c in paren_string:\n        if c == ' ':\n            continue\n        if c == '(':\n            depth += 1\n            current.append(c)\n        elif c == ')':\n            depth -= 1\n            current.append(c)\n            if depth == 0:\n                result.append(''.join(current))\n                current = []\n    return result\n",
+
+  "HumanEval/2": "    return number % 1.0\n",
+
+  "HumanEval/4": "    mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)\n",
+
+  "HumanEval/5": "    if not numbers:\n        return []\n    result = []\n    for i, n in enumerate(numbers):\n        result.append(n)\n        if i < len(numbers) - 1:\n            result.append(delimeter)\n    return result\n",
+
+  "HumanEval/6": "    result = []\n    for group in paren_string.split():\n        depth = 0\n        max_depth = 0\n        for c in group:\n            if c == '(':\n                depth += 1\n                max_depth = max(max_depth, depth)\n            elif c == ')':\n                depth -= 1\n        result.append(max_depth)\n    return result\n",
+
+  "HumanEval/7": "    return [s for s in strings if substring in s]\n",
+
+  "HumanEval/8": "    if not numbers:\n        return (0, 1)\n    total = sum(numbers)\n    product = 1\n    for n in numbers:\n        product *= n\n    return (total, product)\n",
+
+  "HumanEval/9": "    if not numbers:\n        return []\n    result = []\n    current_max = numbers[0]\n    for n in numbers:\n        current_max = max(current_max, n)\n        result.append(current_max)\n    return result\n",
+
+  "HumanEval/10": "    if not string:\n        return ''\n    for i in range(len(string)):\n        suffix = string[i:]\n        if suffix == suffix[::-1]:\n            prefix = string[:i]\n            return string + prefix[::-1]\n    return string + string[:-1][::-1]\n"
+}

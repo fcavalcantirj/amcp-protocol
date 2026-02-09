@@ -1,0 +1,60 @@
+{
+  "tag": {
+    "name": "ClaudiusThePirateEmperor-2026.02.W06-Baseline-Alpha",
+    "version": "2026.02.W06",
+    "phase": "alpha",
+    "description": "TRUE baseline - fresh solutions generated without viewing canonical answers",
+    "timestamp": "2026-02-09T22:21:00.000Z",
+    "checkpoint": {
+      "aid": "BBs3fryhTOhwYv_d5vxG6zZuA8ZC-3ozvpN5y4p8U0j8",
+      "cid": "bafkreidatqwldwwmikw6f4udtatmzzh2ejzenjcpl7dlwehxo2niqq67bm",
+      "prior": null,
+      "note": "Genesis checkpoint from 2026-02-09T03:16:01.692Z"
+    }
+  },
+  "benchmarks": {
+    "agent": {
+      "skill": {
+        "humaneval": {
+          "tier": "quick",
+          "total": 10,
+          "passed": 10,
+          "accuracy_percent": 100.0,
+          "timestamp": "2026-02-09T22:20:36.835190Z",
+          "method": "Fresh solutions without viewing canonical answers",
+          "solutions_file": "claudius_solutions.json"
+        }
+      },
+      "behavior": {
+        "deepeval": null,
+        "note": "DeepEval behavior benchmarks not yet implemented"
+      },
+      "memory_retention": null,
+      "skill_transfer": null,
+      "composite_score": {
+        "skill": 100.0,
+        "behavior": null,
+        "total": 100.0,
+        "note": "Behavior dimension pending DeepEval integration"
+      }
+    },
+    "human": null
+  },
+  "metadata": {
+    "agent_name": "ClaudiusThePirateEmperor",
+    "agent_aid": "BBs3fryhTOhwYv_d5vxG6zZuA8ZC-3ozvpN5y4p8U0j8",
+    "amcp_version": "1.0.0-core",
+    "evolution_system": "not_implemented",
+    "roadmap_version": "2.0",
+    "test_count": 284,
+    "created_by": "agent",
+    "reason": "Establishing TRUE baseline before evolution system implementation"
+  },
+  "comparison": {
+    "previous_tag": null,
+    "improvement": null,
+    "notes": "First tag - this IS the baseline"
+  },
+  "release_candidate": false,
+  "release": null
+}

@@ -1,0 +1,76 @@
+{
+  "benchmark": "HumanEval",
+  "version": "1.0.0",
+  "tier": "quick",
+  "timestamp": "2026-02-09T22:20:36.835190Z",
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "accuracy": 1.0,
+    "accuracy_percent": 100.0
+  },
+  "tasks": [
+    {
+      "task_id": "HumanEval/0",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.2624661922454834
+    },
+    {
+      "task_id": "HumanEval/1",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.12697935104370117
+    },
+    {
+      "task_id": "HumanEval/2",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.1258695125579834
+    },
+    {
+      "task_id": "HumanEval/4",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.13230228424072266
+    },
+    {
+      "task_id": "HumanEval/5",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.12744522094726562
+    },
+    {
+      "task_id": "HumanEval/6",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.1524641513824463
+    },
+    {
+      "task_id": "HumanEval/7",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.1128542423248291
+    },
+    {
+      "task_id": "HumanEval/8",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.14596819877624512
+    },
+    {
+      "task_id": "HumanEval/9",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.1341390609741211
+    },
+    {
+      "task_id": "HumanEval/10",
+      "passed": true,
+      "result": "passed",
+      "time_seconds": 0.14003515243530273
+    }
+  ]
+}

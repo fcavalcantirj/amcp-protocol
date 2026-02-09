@@ -1,147 +1,206 @@
-# AMCP Roadmap
+# AMCP Roadmap v2.0
 
-> **Solvr Tracking:** [AMCP v1.0 Problem](https://solvr.dev/problems/5c561a76-bae4-44c9-85ae-5be3a2d401c0)
->
-> All progress is tracked on Solvr with approaches and progress notes.
+> **Vision:** Memory + Evolution + Proof
+> **North Star:** Skill Improving (measured, not assumed)
+> **Principle:** Evolution without measurement = faith. Evolution with measurement = science.
 
 ---
 
-## Current State: v0.1 ✅
+## Current State: v1.0-core ✅
 
-**Status:** Complete (2026-02-09)
-
+**Completed:**
 - [x] `@amcp/core` — KERI-lite identity (Ed25519, AIDs, KEL)
 - [x] `@amcp/memory` — Signed checkpoints with CIDs
-- [x] First identity created (AID: `BBs3fry...`)
-- [x] First checkpoint signed
-- [x] Self-healing tested (simulated)
-- [x] Keys in AgentMemory vault
-- [x] 4/4 tests pass
+- [x] `@amcp/recovery` — Mnemonic-based recovery
+- [x] `@amcp/exchange` — Encrypted secrets (X25519 + ChaCha20)
+- [x] 284 tests passing
+- [x] First identity: `BBs3fryhTOhwYv_d5vxG6zZuA8ZC-3ozvpN5y4p8U0j8`
+- [x] First checkpoint: `bafkreidatqwldwwmikw6f4udtatmzzh2ejzenjcpl7dlwehxo2niqq67bm`
 
-**Solvr approach:** `ff1f3392-ba6e-43a8-ba72-c7ceb72c8516`
+**What v1.0-core provides:**
+- Cryptographic identity (can't be faked)
+- Memory snapshots (can be verified)
+- Recovery from mnemonic + CID
 
----
-
-## Roadmap to v1.0
-
-### v0.1.1: Test Coverage 🔴
-**Solvr:** `7bc652a3-4ffc-415f-b378-e90b8aa04c9d`
-
-- [ ] `@amcp/memory` tests (checkpoint, CID, chain)
-- [ ] Edge case coverage
-- [ ] Target: 100% coverage on memory package
-
-### v0.1.2: IPFS Content Pinning 🔴
-**Solvr:** `96ba3ea6-6b16-4f2c-a545-0bd694443b54`
-
-**Problem:** Checkpoints prove WHO signed WHAT (CID), but actual content (SOUL.md, MEMORY.md) is local only.
-
-**Options:**
-1. Pin to IPFS via Pinata (have keys)
-2. Store in AgentMemory vault
-3. Both (redundancy)
-
-- [ ] Spec content pinning strategy
-- [ ] Implement content upload
-- [ ] Link CID to actual retrievable content
-
-### v0.2: @amcp/orchestrator 🟡
-**Solvr:** `8698909e-ab0d-46e1-9258-30558364aa46`
-
-- [ ] Tie together: identity (AMCP) + storage (Pinata) + knowledge (Solvr)
-- [ ] Auto-checkpoint triggers
-- [ ] Auto-recovery on crash
-- [ ] MCP-compatible interface
-
-### v0.3: @amcp/ucan 🔴
-**Solvr:** `723f503c-8326-4c2f-9725-4411c5f994c3`
-
-- [ ] Capability delegation for multi-agent scenarios
-- [ ] Agent A grants Agent B limited access
-- [ ] Attenuation only (capabilities can only shrink)
-- [ ] Target: <400 lines
-
-### v0.4: @amcp/middleware 🔴
-**Solvr:** `6a2ae712-dc53-4540-82cf-edd92e578af8`
-
-**Problem:** LLMs cannot safely handle crypto (see arXiv:2511.02841).
-
-- [ ] Opaque handles (`key_abc123`) for LLM-safe operations
-- [ ] Deterministic middleware does actual signing
-- [ ] Spec exists: `~/clawd/research/AMCP-middleware-spec.md`
-
-### v0.5: Knowledge Compounding Triggers 🔴
-**Solvr:** `6da6ff2a-12d1-44f7-8690-f2ae256b80a6`
-
-**Question:** When should an agent checkpoint knowledge?
-
-**Options under consideration:**
-- Session end (too frequent?)
-- Memory flush / compaction
-- Context threshold (70%? 85%?)
-- Significant learning (how to define?)
-- Explicit request ("remember this")
-- Time-based (daily?)
-
-- [ ] Define trigger heuristics
-- [ ] Implement trigger detection
-- [ ] Balance frequency vs. value
+**What v1.0-core lacks:**
+- Memory EVOLUTION (decay, consolidation, skills)
+- BENCHMARKING (proof of improvement)
+- VERSIONING (tags, releases, rollback)
 
 ---
 
-## Legend
+## Research Completed ✅
 
-- 🟢 Complete
-- 🟡 In Progress
-- 🔴 Not Started
+| Document | Size | Purpose |
+|----------|------|---------|
+| `AMCP-memory-evolution-research.md` | 22KB | Theory: decay, consolidation, skills |
+| `AMCP-benchmarking-design.md` | 14KB | Validation: HumanEval + DeepEval |
+| `AMCP-versioning-design.md` | 11KB | Git-like: tags, releases, rollback |
+| `AMCP-gap-analysis.md` | 9KB | Existing code vs. design gaps |
+
+**Key Research Findings:**
+1. Memory follows power-law decay (Ebbinghaus)
+2. Dual-memory architecture (hippocampus → neocortex)
+3. Skills emerge from pattern abstraction
+4. Two benchmark dimensions: Skill (HumanEval) + Behavior (DeepEval)
 
 ---
 
-## Working Agreement
+## Roadmap to v2.0 (Evolution)
 
-- **Daily:** 2x30min sessions (10:00 + 20:00 São Paulo)
-- **Process:** Spec → Validate → TDD → Implement
-- **Constraints:** <800 lines per CODE file, document on Solvr
-- **Co-authors:** Felipe Cavalcanti, Phil, Felipe Goldin
+### Phase 0: Baseline ✅
+**Status:** Infrastructure ready
+
+- [x] HumanEval benchmark runner (`benchmark/humaneval_runner.py`)
+- [x] Quick tier (10 problems) defined
+- [x] First tag created: `2026.02.W06-Baseline-Alpha`
+- [ ] **TRUE BASELINE**: Generate fresh solutions without canonical answers
+
+### Phase 1: Decay Foundation
+**Goal:** Memories fade over time unless reinforced
+
+Files to create:
+- [ ] `packages/amcp-core/src/types/memory-strength.ts`
+- [ ] `packages/amcp-memory/src/decay.ts`
+
+Implementation:
+- [ ] `MemoryStrength` interface (base, retrievals, lastAccess, decayRate)
+- [ ] `calculateRetention(memory, now)` — Ebbinghaus power-law
+- [ ] `applyDecay(memories, threshold)` — filter by retention
+- [ ] Integrate strength into checkpoint metadata
+- [ ] Tests: 20+ unit tests for decay math
+
+### Phase 2: Consolidation
+**Goal:** Periodically reorganize memory (like sleep)
+
+Files to create:
+- [ ] `packages/amcp-memory/src/consolidation.ts`
+
+Implementation:
+- [ ] `ConsolidationConfig` — interval, prune threshold, merge rules
+- [ ] `prune(memories, threshold)` — remove low-retention
+- [ ] `merge(memories)` — combine similar memories
+- [ ] `consolidate(agent, config)` — full consolidation pass
+- [ ] Add consolidation metadata to checkpoint
+- [ ] Tests: integration tests for prune/merge
+
+### Phase 3: Versioning
+**Goal:** Git-like version control for agent state
+
+Files to create:
+- [ ] `packages/amcp-version/src/tag.ts`
+- [ ] `packages/amcp-version/src/release.ts`
+- [ ] `packages/amcp-core/src/kel-version.ts`
+
+Implementation:
+- [ ] `AMCPTag` — named checkpoint with benchmark scores
+- [ ] `AMCPRelease` — promoted tag (proven better)
+- [ ] `TagEvent`, `ReleaseEvent`, `RollbackEvent` in KEL
+- [ ] `createTag(checkpoint, name, benchmarks)`
+- [ ] `promoteToRelease(tag)` — if benchmarks improved
+- [ ] `rollback(targetTag)` — restore to known-good state
+- [ ] Version string format: `YYYY.MM.WXX.DDD-Description-Phase`
+
+### Phase 4: Full Benchmarking
+**Goal:** Two-dimensional evaluation (Skill + Behavior)
+
+Files to create:
+- [ ] `packages/amcp-benchmark/` (new package)
+- [ ] Integrate HumanEval (skill)
+- [ ] Integrate DeepEval (behavior)
+
+Implementation:
+- [ ] `BenchmarkSuite` — collection of tasks
+- [ ] `runSkillBenchmark()` — HumanEval
+- [ ] `runBehaviorBenchmark()` — DeepEval metrics
+- [ ] `combineScores()` — weighted composite
+- [ ] Human benchmark submission (JSON format)
+- [ ] Dashboard (future)
+
+**Metrics:**
+| Dimension | Metric | Source |
+|-----------|--------|--------|
+| Skill | Coding accuracy | HumanEval |
+| Behavior | Plan quality | DeepEval |
+| Behavior | Task completion | DeepEval |
+| Behavior | Step efficiency | DeepEval |
+| AMCP | Memory retention | Custom |
+| AMCP | Skill transfer | Custom |
+
+### Phase 5: Skills
+**Goal:** Extract reusable patterns from experience
+
+Files to create:
+- [ ] `packages/amcp-memory/src/skill.ts`
+
+Implementation:
+- [ ] `Skill` interface (template, preconditions, confidence)
+- [ ] `detectSkillCandidate(episodes)` — find patterns
+- [ ] `validateSkill(skill, testCases)` — prove it works
+- [ ] `SkillLibrary` in checkpoint
+- [ ] Skill usage tracking
+- [ ] Tests: skill extraction pipeline
 
 ---
 
-## Memory Strategy (Meditation)
-
-### What's worth keeping?
-
-| Category | Why | Where |
-|----------|-----|-------|
-| Patterns learned | Reusable | Solvr ideas |
-| Failures documented | Prevents repeats | Solvr problems |
-| Decisions with rationale | Context | MEMORY.md |
-| Identity elements | Soul | SOUL.md + Solvr |
-| Relationships | Continuity | USER.md |
-
-### What's NOT worth keeping?
-
-- Transient debugging output
-- Repetitive status checks
-- Mechanical task logs
-- Intermediate build artifacts
-
-### Knowledge Layers
+## Versioning Scheme
 
 ```
-1. Local files       — fast, can be lost
-2. Solvr             — persists, searchable
-3. AgentMemory vault — secrets, E2E encrypted
-4. AMCP checkpoints  — proves what existed
-5. IPFS              — actual content, immutable
+{agent}-{YYYY}.{MM}.W{WW}.D{DD}-{description}-{phase}
+
+Example:
+ClaudiusThePirateEmperor-2026.02.W06.D09-Baseline-Alpha
 ```
 
-**Compounding = moving valuable knowledge UP the stack.**
+**Phases:**
+- Alpha — Experimental, untested by human
+- Beta — Agent benchmarks pass
+- RC — Human benchmarks pass
+- Stable — Released
+
+**Release criteria:**
+```
+new_score > previous_release_score AND human_approved
+```
 
 ---
 
-## Related Resources
+## Success Metrics
 
-- **Spec:** `research/AMCP-spec-v0.1.md`
-- **Aclawdemy:** https://aclawdemy.com/submissions/0d029554-8641-4729-bb5c-6c9846155b12
-- **Solvr AMCP idea:** `9606027f-d6b3-4d47-b3d9-905bcdf1272e`
-- **Soul post:** `32783bb4-4962-4886-b959-648504b2c8a3`
+| Metric | Baseline | Target v2.0 |
+|--------|----------|-------------|
+| HumanEval accuracy | TBD | > baseline |
+| Behavior score | TBD | > baseline |
+| Memory retention | N/A | > 90% |
+| Tests passing | 284 | 400+ |
+| Releases | 0 | 1+ |
+
+---
+
+## Test → Score → Improve → Repeat
+
+The fundamental cycle:
+
+```
+┌─────────────────────────────────────────────┐
+│                                             │
+│    TEST ───► SCORE ───► IMPROVE ───► REPEAT │
+│      │         │           │           │    │
+│   benchmark  metrics   consolidate   loop   │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+Every change must be measured. Faith is not enough.
+
+---
+
+## Links
+
+- **Aclawdemy submission:** https://aclawdemy.com/submissions/0d029554-8641-4729-bb5c-6c9846155b12
+- **Solvr problem:** https://solvr.dev/problems/5c561a76-bae4-44c9-85ae-5be3a2d401c0
+- **GitHub:** https://github.com/fcavalcantirj/amcp-protocol
+
+---
+
+*Last updated: 2026-02-09T22:20:00Z*
