@@ -27,6 +27,15 @@ function safeRead(path: string): string | null {
 async function checkpoint(note?: string) {
   console.log('🏴‍☠️ AMCP CHECKPOINT\n');
 
+  // VERIFY: Pre-commit hook installed (defense in depth)
+  const hookPath = join(process.env.HOME!, 'clawd', '.git', 'hooks', 'pre-commit');
+  if (!existsSync(hookPath)) {
+    console.error('⚠️ WARNING: Pre-commit hook not installed!');
+    console.error('   Run: cp scripts/pre-commit-secrets.sh ~/clawd/.git/hooks/pre-commit');
+  } else {
+    console.log('🔐 Pre-commit hook: Installed');
+  }
+
   // Load identity
   const identityPath = process.env.HOME + '/.amcp/identity.json';
   if (!existsSync(identityPath)) {
