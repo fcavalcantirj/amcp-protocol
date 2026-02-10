@@ -92,42 +92,14 @@ async function checkpoint(note?: string) {
   
   console.log(`   Research docs: ${Object.keys(research).length} files`);
 
-  // ============================================================
-  // SOURCE CODE (don't depend on GitHub)
-  // ============================================================
-  const packagesDir = join(clawd, 'amcp-protocol', 'packages');
-  const sourceCode: Record<string, string> = {};
-  
-  function collectSourceFiles(dir: string, prefix: string = '') {
-    if (!existsSync(dir)) return;
-    const entries = readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.name === 'node_modules' || entry.name === 'dist') continue;
-      const fullPath = join(dir, entry.name);
-      const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
-      if (entry.isDirectory()) {
-        collectSourceFiles(fullPath, relativePath);
-      } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.json')) {
-        sourceCode[relativePath] = readFileSync(fullPath, 'utf-8');
-      }
-    }
-  }
-  
-  collectSourceFiles(packagesDir, 'packages');
-  
-  // Also get root config files
-  const rootConfigs = ['package.json', 'tsconfig.json', 'pnpm-workspace.yaml', 'README.md', 'ROADMAP.md'];
-  for (const f of rootConfigs) {
-    const p = join(clawd, 'amcp-protocol', f);
-    if (existsSync(p)) sourceCode[f] = readFileSync(p, 'utf-8');
-  }
-  
-  console.log(`   Source files: ${Object.keys(sourceCode).length} files`);
+  // NOTE: Source code stays on Git, not Pinata
+  // Pinata = memory, identity, research (unique, not reproducible)
+  // Git = code (reproducible, version controlled)
 
   // ============================================================
   // BUILD CHECKPOINT CONTENT
   // ============================================================
-  // Get git commit hash
+  // Get git commit hash (reference only, code stays on Git)
   let gitCommit = 'unknown';
   try {
     const { execSync } = await import('child_process');
@@ -148,14 +120,11 @@ async function checkpoint(note?: string) {
     // Research (learnings)
     research,
     
-    // Source code (don't depend on GitHub)
-    sourceCode,
-    
     // Meta
     timestamp: new Date().toISOString(),
     note: note || 'Manual checkpoint',
-    version: '3.0.0',  // Now includes source code
-    gitCommit
+    version: '2.1.0',  // Memory + research, no code (code on Git)
+    gitCommit  // Reference to exact code version
   };
 
   // Calculate rough size
@@ -180,10 +149,9 @@ async function checkpoint(note?: string) {
     filesIncluded: {
       workspace: workspaceCount,
       dailyNotes: Object.keys(dailyNotes).length,
-      research: Object.keys(research).length,
-      sourceCode: Object.keys(sourceCode).length
+      research: Object.keys(research).length
     },
-    gitCommit
+    gitCommit  // Code on Git, referenced here
   });
 
   const newCheckpoint = newChain.checkpoints[newChain.checkpoints.length - 1];
@@ -265,8 +233,7 @@ async function checkpoint(note?: string) {
   console.log(`   - AGENTS.md (operating rules)`);
   console.log(`   - ${Object.keys(dailyNotes).length} daily notes`);
   console.log(`   - ${Object.keys(research).length} research docs`);
-  console.log(`   - ${Object.keys(sourceCode).length} source files (GitHub-independent!)`);
-  console.log(`   - Git: ${gitCommit.slice(0, 8)}`);
+  console.log(`   - Git ref: ${gitCommit.slice(0, 8)} (code on Git, not Pinata)`);
 }
 
 checkpoint(process.argv[2]).catch(console.error);
