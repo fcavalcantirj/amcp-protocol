@@ -131,6 +131,34 @@ async function checkpoint(note?: string) {
   const sizeKb = Math.round(JSON.stringify(content).length / 1024);
   console.log(`\n📊 Checkpoint size: ~${sizeKb} KB`);
 
+  // SECURITY: Scan for secrets before saving
+  const contentStr = JSON.stringify(content);
+  const secretPatterns = [
+    /sk-ant-[a-zA-Z0-9]+/,
+    /sk-proj-[a-zA-Z0-9]+/,
+    /ghp_[a-zA-Z0-9]+/,
+    /moltbook_sk_[a-zA-Z0-9]+/,
+    /am_[a-f0-9]{64}/,
+    /whsec_[a-zA-Z0-9]+/,
+  ];
+  
+  let secretsFound = false;
+  for (const pattern of secretPatterns) {
+    if (pattern.test(contentStr)) {
+      console.error(`\n❌ SECRET DETECTED in checkpoint content!`);
+      console.error(`   Pattern: ${pattern}`);
+      secretsFound = true;
+    }
+  }
+  
+  if (secretsFound) {
+    console.error(`\n🚫 CHECKPOINT ABORTED - Remove secrets from files first`);
+    console.error(`   Secrets belong in AgentMemory vault, not in files`);
+    process.exit(1);
+  }
+  
+  console.log(`🔐 Security scan: OK`);
+
   // Reconstruct chain and append
   const chain = {
     aid: stored.chain.aid,
