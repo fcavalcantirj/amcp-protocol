@@ -1,15 +1,28 @@
 /**
  * Create a new AMCP memory checkpoint
  * 
- * Snapshots current SOUL.md + MEMORY.md + daily notes
+ * Snapshots FULL workspace context:
+ * - Core identity: SOUL.md, MEMORY.md
+ * - Human context: USER.md, TOOLS.md, AGENTS.md
+ * - Daily notes: All of them
+ * - Research: Key research docs
+ * 
  * Signs with agent key, appends to chain.
  * 
  * Usage: npx tsx scripts/checkpoint.ts [note]
  */
 import { loadAgent, serializeAgent } from '../packages/amcp-core/src/agent.js';
 import { appendToChain, serializeChain } from '../packages/amcp-memory/src/chain.js';
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'fs';
 import { join } from 'path';
+
+function safeRead(path: string): string | null {
+  try {
+    return existsSync(path) ? readFileSync(path, 'utf-8') : null;
+  } catch {
+    return null;
+  }
+}
 
 async function checkpoint(note?: string) {
   console.log('🏴‍☠️ AMCP CHECKPOINT\n');
@@ -27,29 +40,127 @@ async function checkpoint(note?: string) {
   console.log(`📋 Agent: ${agent.name}`);
   console.log(`   AID: ${agent.aid}`);
 
-  // Gather current memory state
   const clawd = '/home/clawdbot/clawd';
+
+  // ============================================================
+  // CORE IDENTITY (required)
+  // ============================================================
   const soul = readFileSync(join(clawd, 'SOUL.md'), 'utf-8');
   const memory = readFileSync(join(clawd, 'MEMORY.md'), 'utf-8');
   
-  // Get recent daily notes
+  console.log(`\n📦 Core identity loaded`);
+
+  // ============================================================
+  // WORKSPACE CONTEXT (important for full rehydration)
+  // ============================================================
+  const workspace = {
+    user: safeRead(join(clawd, 'USER.md')),
+    tools: safeRead(join(clawd, 'TOOLS.md')),
+    agents: safeRead(join(clawd, 'AGENTS.md')),
+    heartbeat: safeRead(join(clawd, 'HEARTBEAT.md')),
+    identity: safeRead(join(clawd, 'IDENTITY.md')),
+  };
+  
+  const workspaceCount = Object.values(workspace).filter(Boolean).length;
+  console.log(`   Workspace files: ${workspaceCount}/5`);
+
+  // ============================================================
+  // DAILY NOTES (all of them - this is memory)
+  // ============================================================
   const memoryDir = join(clawd, 'memory');
   const dailyNotes: Record<string, string> = {};
   if (existsSync(memoryDir)) {
-    const files = readdirSync(memoryDir).filter(f => f.match(/^\d{4}-\d{2}-\d{2}\.md$/));
-    const recent = files.sort().slice(-3); // Last 3 days
-    for (const f of recent) {
+    const files = readdirSync(memoryDir).filter(f => f.endsWith('.md'));
+    for (const f of files) {
       dailyNotes[f] = readFileSync(join(memoryDir, f), 'utf-8');
     }
   }
+  
+  console.log(`   Daily notes: ${Object.keys(dailyNotes).length} files`);
+
+  // ============================================================
+  // RESEARCH DOCS (preserve learnings)
+  // ============================================================
+  const researchDir = join(clawd, 'research');
+  const research: Record<string, string> = {};
+  if (existsSync(researchDir)) {
+    const files = readdirSync(researchDir).filter(f => f.endsWith('.md'));
+    for (const f of files) {
+      research[f] = readFileSync(join(researchDir, f), 'utf-8');
+    }
+  }
+  
+  console.log(`   Research docs: ${Object.keys(research).length} files`);
+
+  // ============================================================
+  // SOURCE CODE (don't depend on GitHub)
+  // ============================================================
+  const packagesDir = join(clawd, 'amcp-protocol', 'packages');
+  const sourceCode: Record<string, string> = {};
+  
+  function collectSourceFiles(dir: string, prefix: string = '') {
+    if (!existsSync(dir)) return;
+    const entries = readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+      const fullPath = join(dir, entry.name);
+      const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        collectSourceFiles(fullPath, relativePath);
+      } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.json')) {
+        sourceCode[relativePath] = readFileSync(fullPath, 'utf-8');
+      }
+    }
+  }
+  
+  collectSourceFiles(packagesDir, 'packages');
+  
+  // Also get root config files
+  const rootConfigs = ['package.json', 'tsconfig.json', 'pnpm-workspace.yaml', 'README.md', 'ROADMAP.md'];
+  for (const f of rootConfigs) {
+    const p = join(clawd, 'amcp-protocol', f);
+    if (existsSync(p)) sourceCode[f] = readFileSync(p, 'utf-8');
+  }
+  
+  console.log(`   Source files: ${Object.keys(sourceCode).length} files`);
+
+  // ============================================================
+  // BUILD CHECKPOINT CONTENT
+  // ============================================================
+  // Get git commit hash
+  let gitCommit = 'unknown';
+  try {
+    const { execSync } = await import('child_process');
+    gitCommit = execSync('git rev-parse HEAD', { cwd: join(clawd, 'amcp-protocol') }).toString().trim();
+  } catch {}
 
   const content = {
+    // Core (required)
     soul,
     memory,
+    
+    // Workspace (for full rehydration)
+    workspace,
+    
+    // Memory (daily context)
     dailyNotes,
+    
+    // Research (learnings)
+    research,
+    
+    // Source code (don't depend on GitHub)
+    sourceCode,
+    
+    // Meta
     timestamp: new Date().toISOString(),
-    note: note || 'Manual checkpoint'
+    note: note || 'Manual checkpoint',
+    version: '3.0.0',  // Now includes source code
+    gitCommit
   };
+
+  // Calculate rough size
+  const sizeKb = Math.round(JSON.stringify(content).length / 1024);
+  console.log(`\n📊 Checkpoint size: ~${sizeKb} KB`);
 
   // Reconstruct chain and append
   const chain = {
@@ -64,8 +175,15 @@ async function checkpoint(note?: string) {
 
   const newChain = await appendToChain(chain, agent, content, {
     platform: 'openclaw',
-    version: '0.1.0',
-    sessionCount
+    version: '2.0.0',
+    sessionCount,
+    filesIncluded: {
+      workspace: workspaceCount,
+      dailyNotes: Object.keys(dailyNotes).length,
+      research: Object.keys(research).length,
+      sourceCode: Object.keys(sourceCode).length
+    },
+    gitCommit
   });
 
   const newCheckpoint = newChain.checkpoints[newChain.checkpoints.length - 1];
@@ -75,6 +193,56 @@ async function checkpoint(note?: string) {
   console.log(`   Prior: ${newCheckpoint.prior}`);
   console.log(`   Session: ${sessionCount}`);
   console.log(`   Signature: ${newCheckpoint.signature.slice(0, 32)}...`);
+
+  // ============================================================
+  // STORE CONTENT (critical - without this, CID is useless)
+  // ============================================================
+  
+  // 1. Local cache (always)
+  const cacheDir = join(process.env.HOME!, '.amcp', 'cache');
+  if (!existsSync(cacheDir)) mkdirSync(cacheDir, { recursive: true });
+  const cachePath = join(cacheDir, newCheckpoint.cid + '.json');
+  writeFileSync(cachePath, JSON.stringify(content, null, 2));
+  console.log(`\n💾 Content cached locally`);
+  console.log(`   ${cachePath}`);
+
+  // 2. Pinata (if configured)
+  const pinataJwt = process.env.PINATA_JWT;
+  if (pinataJwt) {
+    console.log(`\n☁️ Uploading to Pinata...`);
+    try {
+      const pinataResponse = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${pinataJwt}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pinataContent: content,
+          pinataMetadata: {
+            name: `amcp-checkpoint-${newCheckpoint.cid.slice(-8)}`,
+            keyvalues: {
+              agent: agent.name,
+              aid: agent.aid,
+              timestamp: content.timestamp
+            }
+          }
+        })
+      });
+      
+      if (pinataResponse.ok) {
+        const pinataResult = await pinataResponse.json();
+        console.log(`   ✅ Pinned to IPFS: ${pinataResult.IpfsHash}`);
+      } else {
+        console.log(`   ⚠️ Pinata upload failed: ${pinataResponse.status}`);
+      }
+    } catch (e) {
+      console.log(`   ⚠️ Pinata upload error: ${e}`);
+    }
+  } else {
+    console.log(`\n⚠️ No PINATA_JWT - content stored locally only`);
+    console.log(`   Set PINATA_JWT for cloud backup`);
+  }
 
   // Save updated identity with new chain
   const updated = {
@@ -86,6 +254,19 @@ async function checkpoint(note?: string) {
   writeFileSync(identityPath, JSON.stringify(updated, null, 2));
   console.log(`\n💾 Identity updated at ~/.amcp/identity.json`);
   console.log(`   Total checkpoints: ${newChain.checkpoints.length}`);
+  
+  // Summary
+  console.log(`\n🏴‍☠️ CHECKPOINT COMPLETE`);
+  console.log(`   After respawn, you will have:`);
+  console.log(`   - SOUL.md (who you are)`);
+  console.log(`   - MEMORY.md (what you learned)`);
+  console.log(`   - USER.md (who brow is)`);
+  console.log(`   - TOOLS.md (how to use things)`);
+  console.log(`   - AGENTS.md (operating rules)`);
+  console.log(`   - ${Object.keys(dailyNotes).length} daily notes`);
+  console.log(`   - ${Object.keys(research).length} research docs`);
+  console.log(`   - ${Object.keys(sourceCode).length} source files (GitHub-independent!)`);
+  console.log(`   - Git: ${gitCommit.slice(0, 8)}`);
 }
 
 checkpoint(process.argv[2]).catch(console.error);
