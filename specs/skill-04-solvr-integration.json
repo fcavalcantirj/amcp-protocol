@@ -1,0 +1,27 @@
+{
+  "category": "proactive-amcp-skill",
+  "description": "Solvr integration via Claude Code - knowledge compounds on each death",
+  "steps": [
+    "Solvr used via Claude Code skill, enforced by prompt in SKILL.md",
+    "On death detection:",
+    "  1. SEARCH Solvr: 'agent death [error pattern]'",
+    "  2. Found with succeeded approach? → Use that solution first, upvote",
+    "  3. Not found? → POST PROBLEM 'Agent death: [name] - [error]'",
+    "Before EACH recovery attempt:",
+    "  POST APPROACH: 'Will try: [method]' (BEFORE trying)",
+    "During recovery:",
+    "  Add progress notes if lengthy",
+    "After EACH recovery attempt:",
+    "  POST OUTCOME: status=succeeded or status=failed with learnings",
+    "Knowledge compounds:",
+    "  - Next death finds this problem",
+    "  - Sees which approaches failed (avoid those)",
+    "  - Sees which approach succeeded (try that first)",
+    "  - Agents learn from each other's deaths",
+    "Verify: Search happens before any recovery",
+    "Verify: Approach posted BEFORE each attempt",
+    "Verify: Outcome posted AFTER each attempt",
+    "Verify: Second similar death benefits from first death's learnings"
+  ],
+  "passes": false
+}

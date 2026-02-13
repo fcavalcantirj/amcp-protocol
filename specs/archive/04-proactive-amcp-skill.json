@@ -1,0 +1,19 @@
+{
+  "category": "skill",
+  "description": "proactive-amcp skill - enforcer of AMCP protocol",
+  "steps": [
+    "Create skill structure: skills/proactive-amcp/SKILL.md + scripts/",
+    "Watchdog component: cron job checks child heartbeats, detects death",
+    "Auto-checkpoint component: scheduled checkpoints (configurable interval)",
+    "Resurrection orchestrator: on death -> Solvr search -> deploy new instance -> restore from checkpoint",
+    "Death notification: alert parent via Telegram when child dies",
+    "Resurrection notification: alert when child resurrects with stats (downtime, CID used)",
+    "Config: checkpoint_interval, encrypt_level, solvr_integration (on/off), notify_channel",
+    "CLI commands: amcp-status, amcp-checkpoint-now, amcp-resurrect <CID>",
+    "Verify: Watchdog detects simulated death within 2 heartbeat cycles",
+    "Verify: Auto-checkpoint creates encrypted checkpoint on schedule",
+    "Verify: Resurrection flow completes end-to-end with Solvr logging",
+    "Verify: Parent receives death and resurrection notifications"
+  ],
+  "passes": false
+}

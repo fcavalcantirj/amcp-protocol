@@ -1,0 +1,24 @@
+{
+  "category": "proactive-amcp",
+  "description": "Complete autonomous resurrection flow",
+  "steps": [
+    "Watchdog detects death (heartbeat timeout or health check fail)",
+    "Log death event locally with timestamp, last known state",
+    "POST death to Solvr as problem: { type: 'problem', title: 'Agent death: [name]', description: crash context, tags: ['amcp', 'death', 'resurrection'] }",
+    "Search Solvr for similar deaths: GET /search?q=death+[error pattern]",
+    "If prior solutions found: note them for post-resurrection config",
+    "Trigger openclaw-deploy: ./deploy.sh --name [name] --resurrect-from [CID] --bot-token [token]",
+    "Deploy script restores from checkpoint: identity, memory, SOUL.md, config",
+    "Decrypt and inject secrets bundle into new instance config",
+    "Apply any Solvr-sourced fixes to config",
+    "Start gateway, verify health",
+    "POST resurrection success to Solvr approach: status=succeeded, method, downtime_seconds",
+    "Notify parent via Telegram: '🔄 [name] resurrected from [CID]. Downtime: Xm. Solvr: [link]'",
+    "If resurrection fails: POST approach status=failed, alert parent, log for manual intervention",
+    "Verify: End-to-end resurrection completes in <5 minutes",
+    "Verify: Resurrected agent has correct identity (same AID)",
+    "Verify: Resurrected agent has API keys working",
+    "Verify: Solvr has complete death->resurrection trail"
+  ],
+  "passes": false
+}

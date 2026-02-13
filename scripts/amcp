@@ -1,0 +1,3 @@
+#!/bin/bash
+# AMCP CLI wrapper
+exec npx tsx /home/clawdbot/clawd/amcp-protocol/scripts/amcp-cli.ts "$@"

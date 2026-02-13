@@ -1,0 +1,16 @@
+{
+  "category": "amcp-protocol",
+  "description": "Add encryption layer to AMCP checkpoints",
+  "steps": [
+    "Define encryption format: AES-256-GCM with key derived from AMCP private key via HKDF",
+    "Create encrypt(payload, privateKey) -> encryptedPayload function",
+    "Create decrypt(encryptedPayload, privateKey) -> payload function",
+    "Add 'encryption' field to checkpoint schema: 'none' | 'full' | 'secrets-only'",
+    "Update checkpoint creation to accept --encrypt flag",
+    "Update resuscitate to detect encryption and decrypt accordingly",
+    "Verify: Checkpoint with --encrypt=full is unreadable without private key",
+    "Verify: Checkpoint with --encrypt=none remains plaintext (backward compat)",
+    "Verify: Resuscitate decrypts and restores correctly"
+  ],
+  "passes": false
+}

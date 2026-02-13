@@ -1,0 +1,18 @@
+{
+  "category": "amcp-protocol",
+  "description": "Flexible encryption levels - user/agent decides",
+  "steps": [
+    "Define encryption levels in AMCP config: { encryption: { level: 'none'|'secrets-only'|'full', publicCheckpoints: bool } }",
+    "Level 'none': Everything plaintext on IPFS (for transparency/research agents)",
+    "Level 'secrets-only': Credentials encrypted, memory/soul plaintext (default)",
+    "Level 'full': Everything encrypted (maximum privacy)",
+    "publicCheckpoints flag: if true, checkpoint CIDs are posted to Solvr for discoverability",
+    "CLI flag: amcp checkpoint --encrypt=full|secrets-only|none",
+    "Config can be set per-agent in openclaw.json or AMCP config",
+    "Verify: --encrypt=none produces readable checkpoint",
+    "Verify: --encrypt=secrets-only encrypts only credentials blob",
+    "Verify: --encrypt=full encrypts entire payload",
+    "Verify: publicCheckpoints=true posts CID to Solvr, false does not"
+  ],
+  "passes": false
+}

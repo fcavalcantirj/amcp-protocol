@@ -1,0 +1,17 @@
+{
+  "category": "amcp-protocol",
+  "description": "Integrate Solvr into resurrection flow for knowledge compounding",
+  "steps": [
+    "On death detection: POST to Solvr as 'problem' with death context (crash reason, last checkpoint CID)",
+    "Before resurrection: GET from Solvr - search for similar death patterns, known fixes",
+    "If Solvr has relevant solutions: apply them during resurrection config",
+    "On successful resurrection: POST 'approach' with status=succeeded and method used",
+    "On failed resurrection: POST 'approach' with status=failed and error details",
+    "Store Solvr problem ID in checkpoint metadata for continuity tracking",
+    "Verify: Death creates Solvr problem post",
+    "Verify: Resurrection searches Solvr for prior art",
+    "Verify: Success/failure updates Solvr approach status",
+    "Verify: Knowledge compounds - second death of same type finds first death's solution"
+  ],
+  "passes": false
+}

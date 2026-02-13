@@ -1,0 +1,25 @@
+{
+  "category": "amcp-protocol-future",
+  "description": "Conflict prevention by design (not v1 - future scope)",
+  "steps": [
+    "PROTOCOL DEFINES:",
+    "  - Signature = only key holder can create valid checkpoints",
+    "  - Same AID + different content = different CID (IPFS)",
+    "  - Conflict only possible if key compromised",
+    "ENFORCER IMPLEMENTS:",
+    "  - Before pinning: check if checkpoint for AID+timestamp exists",
+    "  - If exists with different CID: ALERT possible conflict",
+    "  - Index check: query Solvr or local DB for existing checkpoints",
+    "  - On conflict detection: notify human, don't overwrite",
+    "CONFLICT SCENARIOS:",
+    "  - Two machines with same key (misconfiguration) → should not happen",
+    "  - Attacker with stolen key → revocation needed",
+    "  - Race condition → enforcer checks before write",
+    "BY DESIGN:",
+    "  - Signatures make unauthorized creation impossible",
+    "  - Enforcer checks prevent accidental conflicts",
+    "  - True conflict = key compromise = revocation path",
+    "NOT IN V1 - document for awareness"
+  ],
+  "passes": false
+}

@@ -1,0 +1,17 @@
+{
+  "category": "amcp-protocol",
+  "description": "Checkpoint versioning for backward compatibility",
+  "steps": [
+    "Define checkpoint versions: v1 = plaintext (legacy), v2 = encrypted support",
+    "Add 'version' field to checkpoint header (outside encrypted payload)",
+    "v2 checkpoint structure: { version: 2, aid, timestamp, encryption: 'none'|'full'|'secrets-only', payload: ..., secrets: encryptedBlob? }",
+    "Resuscitate auto-detects version and handles accordingly",
+    "v1 checkpoints remain readable (no breaking change)",
+    "Migration script: upgrade v1 checkpoint to v2 with encryption",
+    "Verify: v1 checkpoint resuscitates correctly",
+    "Verify: v2 plaintext checkpoint resuscitates correctly",
+    "Verify: v2 encrypted checkpoint resuscitates correctly",
+    "Verify: Migration script converts v1 to v2 without data loss"
+  ],
+  "passes": false
+}

@@ -1,0 +1,22 @@
+{
+  "category": "amcp-protocol",
+  "description": "Create encrypted and signed checkpoint",
+  "steps": [
+    "createCheckpoint(identity, content, secrets, previousCID?, resurrectFromCID?) -> string",
+    "identity: { aid, publicKey, privateKey }",
+    "content: { soul, memory, files }",
+    "secrets: [{ key, value, type, targets }]",
+    "Process:",
+    "  1. Build payload: { content, secrets }",
+    "  2. Encrypt payload → encryptedPayload (base64)",
+    "  3. Sign encryptedPayload → signature",
+    "  4. Build header: { version: 2, aid, timestamp, previousCID, resurrectFromCID, signature }",
+    "  5. Return: JSON(header) + '\\n---\\n' + encryptedPayload",
+    "CLI: amcp checkpoint create --identity <path> --content <dir> --secrets <json> --previous <cid> --out <path>",
+    "Verify: Output has valid header with signature",
+    "Verify: Signature verifies against encrypted payload",
+    "Verify: previousCID links correctly",
+    "Verify: Secrets have all target types"
+  ],
+  "passes": false
+}

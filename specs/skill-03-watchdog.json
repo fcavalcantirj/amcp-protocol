@@ -1,0 +1,23 @@
+{
+  "category": "proactive-amcp-skill",
+  "description": "Self-monitoring watchdog with recovery hierarchy",
+  "steps": [
+    "Watchdog runs on EACH agent (not just parent)",
+    "Self-health check: gateway responding, memory ok, disk ok",
+    "On health check failure (2x consecutive):",
+    "  State: HEALTHY → CHECKING → DEAD",
+    "Recovery hierarchy (try in order, deploy LAST RESORT):",
+    "  1. Restart gateway (lightest)",
+    "  2. Fix config from last known good",
+    "  3. Rehydrate from checkpoint (restore everything)",
+    "  4. Deploy new VM (ONLY if VM unreachable)",
+    "Each recovery step: Solvr approach before, outcome after",
+    "Child notifies parent via Telegram on ALL state changes",
+    "Never poll children - children notify parent",
+    "CLI: amcp watchdog status, amcp health-check",
+    "Verify: Detects gateway crash within 2 heartbeats",
+    "Verify: Tries lightweight recovery before heavy",
+    "Verify: Notifies parent on each step"
+  ],
+  "passes": false
+}

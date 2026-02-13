@@ -1,0 +1,24 @@
+{
+  "category": "proactive-amcp-skill",
+  "description": "Notifications - child notifies parent on ALL steps",
+  "steps": [
+    "Child notifies parent (never poll)",
+    "Telegram on ALL state changes:",
+    "  - '☠️ [name] died. Error: [msg]. Starting recovery...'",
+    "  - '🔄 [name] trying: restart gateway'",
+    "  - '❌ [name] restart failed, trying: config fix'",
+    "  - '🔄 [name] trying: rehydrate from [CID]'",
+    "  - '✅ [name] alive! Downtime: [X]m'",
+    "  - '❌ [name] resurrection FAILED. Need human.'",
+    "Email on full resurrection (success or failure):",
+    "  - Subject: 'Agent Resurrection: [name] - [status]'",
+    "  - Body: timeline, steps tried, Solvr links, downtime, current state",
+    "Config: notifyChannel (telegram), notifyTarget (user_id), emailOnResurrect (bool)",
+    "Use OpenClaw message tool for Telegram",
+    "Use gog or AgentMail for email",
+    "Verify: Telegram within 10s of each state change",
+    "Verify: Email contains full timeline",
+    "Verify: Solvr links included in notifications"
+  ],
+  "passes": false
+}
