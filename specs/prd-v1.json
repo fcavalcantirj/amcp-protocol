@@ -22,7 +22,7 @@
       "Export isValidAid from packages/amcp-core/src/index.ts (currently missing from exports)",
       "Verify: sha256-derived AID from openclaw-deploy is rejected"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "validation",

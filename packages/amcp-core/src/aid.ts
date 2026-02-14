@@ -8,6 +8,7 @@
  */
 
 import { toBase64url, fromBase64url } from './crypto.js';
+import { Point } from '@noble/ed25519';
 
 // KERI derivation code for Ed25519 public keys
 const ED25519_PREFIX = 'B';
@@ -43,11 +44,20 @@ export function publicKeyFromAid(aid: string): Uint8Array {
 }
 
 /**
- * Validate an AID format
+ * Validate an AID — checks prefix, length, AND Ed25519 on-curve validity.
+ *
+ * Rejects AIDs where the decoded bytes are not a valid Ed25519 point
+ * (e.g. sha256 hash output passes length check but fails curve check).
  */
 export function isValidAid(aid: string): boolean {
   try {
-    publicKeyFromAid(aid);
+    const publicKey = publicKeyFromAid(aid);
+    // On-curve validation: throws if bytes are not a valid Ed25519 point
+    const point = Point.fromBytes(publicKey, false);
+    // Reject small-order / torsion points (not valid public keys)
+    if (point.clearCofactor().equals(Point.ZERO)) {
+      return false;
+    }
     return true;
   } catch {
     return false;

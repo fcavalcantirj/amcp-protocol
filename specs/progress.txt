@@ -14,3 +14,14 @@
 - Exported `isValidAid` from `@amcp/core` index (was missing)
 - Added 17 test cases in `packages/amcp-core/src/test/validate-identity.test.ts`
 - All 198 tests pass, build succeeds
+
+## 2026-02-14: Ed25519 on-curve validation for isValidAid() (prd-v1 task 2)
+- Updated `isValidAid()` in `packages/amcp-core/src/aid.ts`
+  - Added `Point.fromBytes(publicKey, false)` — rejects bytes not on Ed25519 curve
+  - Added `clearCofactor().equals(Point.ZERO)` — rejects small-order torsion points
+  - Imported `Point` from `@noble/ed25519` (existing dependency)
+- `isValidAid` was already exported from `@amcp/core` index.ts (task 1 did this)
+- Added 11 test cases in `packages/amcp-core/src/test/aid-validation.test.ts`
+  - Rejection: invalid curve points (y=2, y=7), torsion (all-zeros), 0xFF fill, wrong prefix, wrong length, empty, prefix-only, sha256 hex AID
+  - Acceptance: real Ed25519 keypair AID, multiple generated AIDs
+- All 209 tests pass, build succeeds
