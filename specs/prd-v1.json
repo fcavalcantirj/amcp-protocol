@@ -60,7 +60,7 @@
       "Export from packages/amcp-core/src/index.ts",
       "Verify: import { validateIdentityFile } from '@amcp/core' works"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "testing",

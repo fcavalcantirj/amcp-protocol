@@ -53,3 +53,18 @@
   - Rejection: empty KEL, missing inception (starts with rotation), wrong inception sn, corrupted signature, tampered AID, KEL AID mismatch
   - Acceptance: valid KEL from createAgent, identity without KEL, old-format with valid KEL
 - All 230 tests pass, build succeeds
+
+## 2026-02-14: Export validateIdentityFile(path) from @amcp/core (prd-v1 task 5)
+- Created `packages/amcp-core/src/validate.ts` — `validateIdentityFile(path)` function
+  - Reads identity file from disk using `node:fs/promises`
+  - Parses JSON with descriptive error on invalid syntax
+  - Validates JSON is a non-null object (rejects arrays, null, primitives)
+  - Delegates to `validateIdentityFull()` for full validation pipeline
+  - Returns `{ valid: boolean, errors: string[] }` — never throws
+- Exported `validateIdentityFile` from `@amcp/core` index.ts
+- Added 12 test cases in `packages/amcp-core/src/test/validate-identity-file.test.ts`
+  - File-level: nonexistent file, invalid JSON, JSON array, JSON null
+  - Identity-level: empty object, openclaw-deploy fake, invalid AID, AID-publicKey mismatch, corrupt KEL
+  - Acceptance: valid flat identity, valid with KEL, valid old-format
+  - Uses real temp files on disk (no mocks)
+- All 242 tests pass, build succeeds

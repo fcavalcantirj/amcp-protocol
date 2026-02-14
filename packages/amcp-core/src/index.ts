@@ -37,6 +37,7 @@ export {
 } from './crypto.js';
 export { aidFromPublicKey, publicKeyFromAid, isValidAid } from './aid.js';
 export { validateIdentitySchema, validateIdentityFull, type IdentityValidationResult } from './validate-identity.js';
+export { validateIdentityFile } from './validate.js';
 export {
   generateMnemonic,
   mnemonicToSeed,
