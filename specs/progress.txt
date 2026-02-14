@@ -25,3 +25,19 @@
   - Rejection: invalid curve points (y=2, y=7), torsion (all-zeros), 0xFF fill, wrong prefix, wrong length, empty, prefix-only, sha256 hex AID
   - Acceptance: real Ed25519 keypair AID, multiple generated AIDs
 - All 209 tests pass, build succeeds
+
+## 2026-02-14: 'amcp identity validate' CLI command (prd-v1 task 3)
+- Created `validateIdentityFull()` in `packages/amcp-core/src/validate-identity.ts`
+  - Composes all validation layers: schema check, AID Ed25519 on-curve check, AID-publicKey consistency, KEL integrity
+  - Async function (KEL verification requires async crypto)
+  - Returns `{ valid: boolean, errors: string[] }` with all collected errors
+  - Skips KEL check when no KEL is present (flat CLI identities don't have KEL)
+- Added `identity validate` subcommand to `scripts/amcp-cli.ts`
+  - Accepts `--path` flag (defaults to `~/.amcp/identity.json`)
+  - Outputs structured JSON: `{ valid: true }` or `{ valid: false, errors: [...] }`
+  - Exit code 0 on valid, 1 on invalid — designed for scripting use
+- Exported `validateIdentityFull` from `@amcp/core` index
+- Added 12 test cases in `packages/amcp-core/src/test/validate-identity-full.test.ts`
+  - Rejection: empty object, openclaw-deploy fake, invalid curve point, 0xFF fill, AID-publicKey mismatch, empty KEL, KEL AID mismatch
+  - Acceptance: valid flat identity, valid with KEL, valid old-format, no KEL skips check, multi-error collection
+- All 221 tests pass, build succeeds

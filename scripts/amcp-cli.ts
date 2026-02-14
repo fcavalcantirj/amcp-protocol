@@ -5,6 +5,7 @@
  * Commands:
  *   amcp identity create [--out <path>]
  *   amcp identity show [--identity <path>]
+ *   amcp identity validate [--path <path>]
  *   amcp checkpoint create --identity <path> --content <dir> [--secrets <json>] [--previous <cid>] [--out <path>]
  *   amcp resuscitate --checkpoint <path> --identity <path> [--out-content <dir>] [--out-secrets <json>]
  *   amcp verify --checkpoint <path>
@@ -22,7 +23,7 @@ import * as ed from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha256';
-import { validateIdentitySchema } from '../packages/amcp-core/src/validate-identity.js';
+import { validateIdentitySchema, validateIdentityFull } from '../packages/amcp-core/src/validate-identity.js';
 
 // Required for @noble/ed25519 v2
 ed.etc.sha512Sync = (...m: Uint8Array[]) => sha512(ed.etc.concatBytes(...m));
@@ -367,8 +368,25 @@ async function main() {
         console.log(`Created: ${identity.created}`);
         if (identity.parentAID) console.log(`Parent AID: ${identity.parentAID}`);
         
+      } else if (subcommand === 'validate') {
+        const identityPath = getArg('path') || defaultIdentityPath;
+
+        let parsed: Record<string, unknown>;
+        try {
+          const data = readFileSync(identityPath, 'utf-8');
+          parsed = JSON.parse(data);
+        } catch (err) {
+          const result = { valid: false, errors: [`Failed to read identity file: ${(err as Error).message}`] };
+          console.log(JSON.stringify(result, null, 2));
+          process.exit(1);
+        }
+
+        const result = await validateIdentityFull(parsed);
+        console.log(JSON.stringify(result, null, 2));
+        process.exit(result.valid ? 0 : 1);
+
       } else {
-        console.log('Usage: amcp identity <create|show>');
+        console.log('Usage: amcp identity <create|show|validate>');
         process.exit(1);
       }
       
@@ -472,6 +490,7 @@ async function main() {
 Commands:
   amcp identity create [--out <path>] [--parent-aid <aid>]
   amcp identity show [--identity <path>]
+  amcp identity validate [--path <path>]
   amcp checkpoint create --content <dir> [--secrets <json>] [--previous <cid>] [--out <path>]
   amcp resuscitate --checkpoint <path> [--identity <path>] [--out-content <dir>] [--out-secrets <json>]
   amcp verify --checkpoint <path>

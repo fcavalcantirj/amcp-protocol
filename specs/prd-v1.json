@@ -35,7 +35,7 @@
       "Output structured result: { valid: true } or { valid: false, errors: [...] }",
       "Exit code 0 on valid, 1 on invalid — designed for scripting use by proactive-amcp and openclaw-deploy"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "validation",
