@@ -68,3 +68,15 @@
   - Acceptance: valid flat identity, valid with KEL, valid old-format
   - Uses real temp files on disk (no mocks)
 - All 242 tests pass, build succeeds
+
+## 2026-02-14: Fake identity rejection test suite (prd-v1 task 6)
+- Created `packages/amcp-core/src/test/validate.test.ts` — unified end-to-end tests
+  - Uses canonical openclaw-deploy-style fake identity fixture (sha256 hex AID, secrets.pinata_jwt, no publicKey/privateKey, no KEL)
+  - Verifies fake identity is rejected by EVERY validation layer:
+    - `validateIdentitySchema()` — rejects with missing publicKey, privateKey, and non-KERI AID errors
+    - `isValidAid()` — rejects sha256 hex AID (no KERI prefix) and 0xFF bytes with B prefix (not on Ed25519 curve)
+    - `validateIdentityFull()` — returns valid:false with schema + KERI prefix errors
+    - `validateIdentityFile()` — rejects from disk with multiple errors, including disguised B-prefix attack
+  - Positive tests: valid KERI identity (from createAgent()) passes all 4 layers
+- Added 14 test cases covering all validation layers end-to-end
+- All 256 tests pass, build succeeds

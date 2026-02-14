@@ -73,6 +73,6 @@
       "Test validateIdentityFile() returns { valid: false } with multiple errors for fake identity",
       "Test valid KERI identity passes all checks (positive test — use createAgent() to generate valid fixture)"
     ],
-    "passes": false
+    "passes": true
   }
 ]
