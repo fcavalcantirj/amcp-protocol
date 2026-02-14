@@ -1,0 +1,78 @@
+[
+  {
+    "category": "validation",
+    "description": "Add JSON schema validation to loadIdentity() — reject identity.json missing required KERI fields",
+    "steps": [
+      "Locate loadIdentity() in scripts/amcp-cli.ts (line 106-127)",
+      "Current state: parses JSON, detects old format (agent/chain) vs new format (flat) at lines 111-123, but no field-level schema check",
+      "Add schema check after format detection: require aid (string), kel (array with >=1 event), currentPrivateKey (string)",
+      "Throw descriptive error on missing/wrong-typed fields: 'Invalid identity: missing agent.aid (expected KERI AID string)'",
+      "Verify: loading openclaw-deploy-style flat identity (sha256 aid, secrets.pinata_jwt, no kel) throws immediately"
+    ],
+    "passes": false
+  },
+  {
+    "category": "validation",
+    "description": "Add Ed25519 on-curve validation to isValidAid() — reject AIDs that aren't valid Ed25519 public keys",
+    "steps": [
+      "Locate isValidAid() in packages/amcp-core/src/aid.ts (line 48-55)",
+      "Current state: calls publicKeyFromAid() which checks ED25519_PREFIX ('B') + base64url decode + 32-byte length — no curve check",
+      "Add Ed25519 on-curve validation using existing @noble/ed25519 dependency (imported in crypto.ts lines 7-11)",
+      "Reject AIDs where decoded bytes are not a valid Ed25519 point (e.g. sha256 hash output passes length check but fails curve check)",
+      "Export isValidAid from packages/amcp-core/src/index.ts (currently missing from exports)",
+      "Verify: sha256-derived AID from openclaw-deploy is rejected"
+    ],
+    "passes": false
+  },
+  {
+    "category": "validation",
+    "description": "Add 'amcp identity validate' CLI command — exit 0 if valid KERI, exit 1 with errors if not",
+    "steps": [
+      "Add 'identity validate' subcommand to if-else chain in scripts/amcp-cli.ts (lines 339-460)",
+      "Existing commands: identity create, identity show, checkpoint create, resuscitate, verify",
+      "Accept optional --path flag (defaults to ~/.amcp/identity.json)",
+      "Run full validation: schema check, AID crypto check, KEL integrity check",
+      "Output structured result: { valid: true } or { valid: false, errors: [...] }",
+      "Exit code 0 on valid, 1 on invalid — designed for scripting use by proactive-amcp and openclaw-deploy"
+    ],
+    "passes": false
+  },
+  {
+    "category": "validation",
+    "description": "Add KEL integrity check to loadIdentity() — call verifyKEL() on load, reject corrupt/missing inception events",
+    "steps": [
+      "Cross-package gap: loadIdentity() is in scripts/amcp-cli.ts, verifyKEL() is in packages/amcp-core/src/kel.ts (line 182) — different packages",
+      "Option A: import verifyKEL from @amcp/core in the CLI script (already exported from index.ts)",
+      "Option B: inline minimal KEL check in CLI if import is impractical",
+      "verifyKEL() validates: non-empty KEL, inception event at sn=0, event signatures, chain integrity, rotation key commitments (lines 182-228)",
+      "Call after schema validation in loadIdentity(), reject if KEL is empty, missing inception, or has invalid signature"
+    ],
+    "passes": false
+  },
+  {
+    "category": "api",
+    "description": "Export validateIdentityFile(path): {valid, errors[]} from @amcp/core — reusable validation for any consumer",
+    "steps": [
+      "Create packages/amcp-core/src/validate.ts with validateIdentityFile(path) function",
+      "Closest existing: loadAgent() in agent.ts (line 125) validates KEL+keypair but takes SerializedAgent object, not file path",
+      "Compose all checks: file exists, valid JSON, schema validation, AID crypto check (isValidAid), KEL integrity (verifyKEL)",
+      "Return { valid: true, errors: [] } or { valid: false, errors: ['AID is not valid Ed25519', ...] }",
+      "Export from packages/amcp-core/src/index.ts",
+      "Verify: import { validateIdentityFile } from '@amcp/core' works"
+    ],
+    "passes": false
+  },
+  {
+    "category": "testing",
+    "description": "Add test cases for fake identity rejection — verify openclaw-deploy-style identity fails every validation layer",
+    "steps": [
+      "Create packages/amcp-core/src/test/validate.test.ts using Vitest (see agent.test.ts for pattern)",
+      "Create test fixture: fake identity JSON matching openclaw-deploy format (sha256 aid, secrets.pinata_jwt, no agent wrapper, no kel)",
+      "Test loadIdentity() rejects fake identity with schema error",
+      "Test isValidAid() rejects sha256-derived AID with crypto error (fails on-curve check)",
+      "Test validateIdentityFile() returns { valid: false } with multiple errors for fake identity",
+      "Test valid KERI identity passes all checks (positive test — use createAgent() to generate valid fixture)"
+    ],
+    "passes": false
+  }
+]
