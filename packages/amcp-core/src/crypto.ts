@@ -80,7 +80,7 @@ export function hash(data: Uint8Array): Uint8Array {
  * Convert bytes to base64url (URL-safe, no padding)
  */
 export function toBase64url(bytes: Uint8Array): string {
-  const base64 = btoa(String.fromCharCode(...bytes));
+  const base64 = Buffer.from(bytes).toString('base64');
   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
@@ -90,6 +90,5 @@ export function toBase64url(bytes: Uint8Array): string {
 export function fromBase64url(str: string): Uint8Array {
   const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
   const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
-  const binary = atob(padded);
-  return new Uint8Array([...binary].map(c => c.charCodeAt(0)));
+  return new Uint8Array(Buffer.from(padded, 'base64'));
 }

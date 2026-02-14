@@ -1,7 +1,10 @@
 #!/usr/bin/env npx tsx
 /**
  * AMCP CLI - Agent Memory Continuity Protocol
- * 
+ *
+ * Self-contained CLI — depends only on @noble/ed25519 and Node.js builtins.
+ * No @noble/hashes, no monorepo imports. Works standalone on child VMs.
+ *
  * Commands:
  *   amcp identity create [--out <path>]
  *   amcp identity show [--identity <path>]
@@ -12,21 +15,21 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'fs';
-import { join, dirname, basename } from 'path';
-import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'crypto';
+import { join, dirname } from 'path';
+import { createCipheriv, createDecipheriv, randomBytes, createHash, hkdfSync } from 'crypto';
 
 // ============================================================
-// CRYPTO PRIMITIVES (inline to avoid import issues)
+// CRYPTO PRIMITIVES (Node.js crypto + @noble/ed25519 only)
 // ============================================================
 
 import * as ed from '@noble/ed25519';
-import { sha512 } from '@noble/hashes/sha512';
-import { hkdf } from '@noble/hashes/hkdf';
-import { sha256 } from '@noble/hashes/sha256';
-import { validateIdentityFull } from '../packages/amcp-core/src/validate-identity.js';
 
-// Required for @noble/ed25519 v2
-ed.etc.sha512Sync = (...m: Uint8Array[]) => sha512(ed.etc.concatBytes(...m));
+// @noble/ed25519 v2 needs sha512 for sync operations — use Node.js crypto
+ed.etc.sha512Sync = (...m: Uint8Array[]) => {
+  const h = createHash('sha512');
+  for (const d of m) h.update(d);
+  return new Uint8Array(h.digest());
+};
 
 function toBase64url(bytes: Uint8Array): string {
   const base64 = Buffer.from(bytes).toString('base64');
@@ -37,6 +40,156 @@ function fromBase64url(str: string): Uint8Array {
   const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
   const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
   return new Uint8Array(Buffer.from(padded, 'base64'));
+}
+
+// ============================================================
+// IDENTITY VALIDATION (inlined from @amcp/core)
+// ============================================================
+
+/** KERI derivation code for Ed25519 public keys */
+const ED25519_PREFIX = 'B';
+
+interface IdentityValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+function validateRequiredString(
+  obj: Record<string, unknown>,
+  field: string,
+  errors: string[]
+): void {
+  if (typeof obj[field] !== 'string') {
+    errors.push(`Missing required field: ${field} (expected string)`);
+  }
+}
+
+function validateKeriPrefix(aid: string, errors: string[]): void {
+  if (!aid.startsWith(ED25519_PREFIX)) {
+    errors.push(
+      `Invalid AID: expected KERI Ed25519 prefix '${ED25519_PREFIX}', got '${aid[0] ?? ''}'. ` +
+      `AID must be a KERI self-certifying identifier (B + base64url public key)`
+    );
+  }
+}
+
+function validateOldFormat(agent: Record<string, unknown>): IdentityValidationResult {
+  const errors: string[] = [];
+  validateRequiredString(agent, 'aid', errors);
+  validateRequiredString(agent, 'currentPublicKey', errors);
+  validateRequiredString(agent, 'currentPrivateKey', errors);
+  if (typeof agent.aid === 'string') {
+    validateKeriPrefix(agent.aid, errors);
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+function validateIdentitySchema(parsed: Record<string, unknown>): IdentityValidationResult {
+  const errors: string[] = [];
+
+  if (parsed.agent && typeof parsed.agent === 'object') {
+    return validateOldFormat(parsed.agent as Record<string, unknown>);
+  }
+
+  validateRequiredString(parsed, 'aid', errors);
+  validateRequiredString(parsed, 'publicKey', errors);
+  validateRequiredString(parsed, 'privateKey', errors);
+
+  if (typeof parsed.aid === 'string') {
+    validateKeriPrefix(parsed.aid, errors);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function extractIdentityFields(parsed: Record<string, unknown>): { aid?: string; publicKey?: string } {
+  if (parsed.agent && typeof parsed.agent === 'object') {
+    const agent = parsed.agent as Record<string, unknown>;
+    return {
+      aid: typeof agent.aid === 'string' ? agent.aid : undefined,
+      publicKey: typeof agent.currentPublicKey === 'string' ? agent.currentPublicKey : undefined
+    };
+  }
+  return {
+    aid: typeof parsed.aid === 'string' ? parsed.aid : undefined,
+    publicKey: typeof parsed.publicKey === 'string' ? parsed.publicKey : undefined
+  };
+}
+
+/**
+ * Validate an AID — checks prefix, length, AND Ed25519 on-curve validity.
+ * Rejects AIDs where the decoded bytes are not a valid Ed25519 point
+ * (e.g. sha256 hash output passes length check but fails curve check).
+ */
+function isValidAid(aid: string): boolean {
+  try {
+    if (!aid.startsWith(ED25519_PREFIX)) return false;
+    const publicKey = fromBase64url(aid.slice(1));
+    if (publicKey.length !== 32) return false;
+    // On-curve validation: throws if bytes are not a valid Ed25519 point
+    const point = ed.Point.fromBytes(publicKey, false);
+    // Reject small-order / torsion points (not valid public keys)
+    if (point.clearCofactor().equals(ed.Point.ZERO)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function aidFromPublicKey(publicKey: Uint8Array): string {
+  if (publicKey.length !== 32) {
+    throw new Error(`Invalid public key length: expected 32, got ${publicKey.length}`);
+  }
+  return ED25519_PREFIX + toBase64url(publicKey);
+}
+
+/**
+ * Full identity validation: schema + AID crypto (on-curve) + AID-publicKey consistency.
+ *
+ * KEL integrity (layer 4) is omitted — child identities from `amcp identity create`
+ * don't include KELs. The full 4-layer validation remains in @amcp/core for
+ * programmatic use. This does basic KEL structure check if present.
+ */
+async function validateIdentityFull(parsed: Record<string, unknown>): Promise<IdentityValidationResult> {
+  const errors: string[] = [];
+
+  // Layer 1: Schema validation
+  const schemaResult = validateIdentitySchema(parsed);
+  errors.push(...schemaResult.errors);
+
+  const { aid, publicKey } = extractIdentityFields(parsed);
+
+  // Layer 2: AID cryptographic validation (Ed25519 on-curve)
+  if (aid && aid.startsWith(ED25519_PREFIX)) {
+    if (!isValidAid(aid)) {
+      errors.push('AID is not a valid Ed25519 public key (failed on-curve check)');
+    }
+  }
+
+  // Layer 3: AID-publicKey consistency check
+  if (aid && publicKey && aid.startsWith(ED25519_PREFIX)) {
+    try {
+      const pubKeyBytes = fromBase64url(publicKey);
+      const derivedAid = aidFromPublicKey(pubKeyBytes);
+      if (derivedAid !== aid) {
+        errors.push(`AID does not match publicKey: expected ${derivedAid}, got ${aid}`);
+      }
+    } catch {
+      // publicKey decode failed — already caught by schema or crypto checks
+    }
+  }
+
+  // Layer 4 (basic): KEL structure check if present
+  const kel = parsed.kel as { events?: Array<{ aid?: string }> } | undefined;
+  if (kel && typeof kel === 'object' && Array.isArray(kel.events)) {
+    if (kel.events.length === 0) {
+      errors.push('KEL integrity check failed (empty events array)');
+    } else if (aid && kel.events[0]?.aid !== aid) {
+      errors.push(`KEL AID mismatch: identity AID is ${aid}, but KEL inception AID is ${kel.events[0]?.aid}`);
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
 }
 
 // ============================================================
@@ -92,10 +245,10 @@ interface SecretTarget {
 async function createIdentity(parentAID?: string): Promise<Identity> {
   const privateKey = ed.utils.randomPrivateKey();
   const publicKey = await ed.getPublicKeyAsync(privateKey);
-  
+
   // AID = "B" + base64url(publicKey) (KERI-style)
   const aid = 'B' + toBase64url(publicKey);
-  
+
   return {
     aid,
     publicKey: toBase64url(publicKey),
@@ -109,7 +262,7 @@ async function loadIdentity(path: string): Promise<Identity> {
   const data = readFileSync(path, 'utf-8');
   const parsed = JSON.parse(data);
 
-  // Full validation — schema, AID crypto, AID-publicKey consistency, and KEL integrity
+  // Full validation — schema, AID crypto, AID-publicKey consistency
   const validation = await validateIdentityFull(parsed);
   if (!validation.valid) {
     throw new Error(`Invalid identity: ${validation.errors.join('; ')}`);
@@ -144,19 +297,19 @@ function saveIdentity(identity: Identity, path: string): void {
 // ============================================================
 
 function deriveKey(privateKey: Uint8Array): Uint8Array {
-  // HKDF-SHA256 to derive AES key from Ed25519 private key
-  return hkdf(sha256, privateKey, 'amcp-checkpoint-v2', 'aes-256-gcm', 32);
+  // HKDF-SHA256 to derive AES key from Ed25519 private key (Node.js crypto)
+  return new Uint8Array(hkdfSync('sha256', privateKey, 'amcp-checkpoint-v2', 'aes-256-gcm', 32));
 }
 
 function encrypt(payload: CheckpointPayload, privateKey: Uint8Array): string {
   const key = deriveKey(privateKey);
   const iv = randomBytes(12);
   const cipher = createCipheriv('aes-256-gcm', key, iv);
-  
+
   const plaintext = JSON.stringify(payload);
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
   const authTag = cipher.getAuthTag();
-  
+
   // Format: IV (12) + authTag (16) + ciphertext
   const combined = Buffer.concat([iv, authTag, encrypted]);
   return combined.toString('base64');
@@ -165,14 +318,14 @@ function encrypt(payload: CheckpointPayload, privateKey: Uint8Array): string {
 function decrypt(encrypted: string, privateKey: Uint8Array): CheckpointPayload {
   const key = deriveKey(privateKey);
   const combined = Buffer.from(encrypted, 'base64');
-  
+
   const iv = combined.subarray(0, 12);
   const authTag = combined.subarray(12, 28);
   const ciphertext = combined.subarray(28);
-  
+
   const decipher = createDecipheriv('aes-256-gcm', key, iv);
   decipher.setAuthTag(authTag);
-  
+
   const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   return JSON.parse(decrypted.toString('utf8'));
 }
@@ -205,16 +358,16 @@ async function createCheckpoint(
   resurrectFromCID?: string
 ): Promise<string> {
   const privateKey = fromBase64url(identity.privateKey);
-  
+
   // Read content files
   const content: CheckpointPayload['content'] = { files: {} };
-  
+
   if (existsSync(contentDir)) {
     const readDir = (dir: string, prefix = '') => {
       for (const entry of readdirSync(dir)) {
         const fullPath = join(dir, entry);
         const relativePath = prefix ? `${prefix}/${entry}` : entry;
-        
+
         const stats = statSync(fullPath, { throwIfNoEntry: false });
         if (!stats) continue; // Skip broken symlinks
         if (stats.isDirectory()) {
@@ -233,16 +386,16 @@ async function createCheckpoint(
     };
     readDir(contentDir);
   }
-  
+
   // Build payload
   const payload: CheckpointPayload = { content, secrets };
-  
+
   // Encrypt payload
   const encryptedPayload = encrypt(payload, privateKey);
-  
+
   // Sign encrypted payload
   const signature = await signData(encryptedPayload, privateKey);
-  
+
   // Build header
   const header: CheckpointHeader = {
     version: 2,
@@ -250,11 +403,11 @@ async function createCheckpoint(
     timestamp: new Date().toISOString(),
     signature
   };
-  
+
   if (identity.parentAID) header.parentAID = identity.parentAID;
   if (previousCID) header.previousCID = previousCID;
   if (resurrectFromCID) header.resurrectFromCID = resurrectFromCID;
-  
+
   // Format: header JSON + separator + encrypted payload
   return JSON.stringify(header) + '\n---\n' + encryptedPayload;
 }
@@ -271,30 +424,30 @@ async function resuscitate(
 ): Promise<{ header: CheckpointHeader; content: CheckpointPayload['content']; secrets: Secret[] }> {
   const checkpoint = readFileSync(checkpointPath, 'utf-8');
   const { header, encryptedPayload } = parseCheckpoint(checkpoint);
-  
+
   // Validate version
   if (header.version !== 2) {
     throw new Error(`Unsupported checkpoint version: ${header.version}`);
   }
-  
+
   // Validate AID
   if (header.aid !== identity.aid) {
     throw new Error(`AID mismatch: checkpoint is for ${header.aid}, but identity is ${identity.aid}`);
   }
-  
+
   // Extract public key from AID
   const publicKey = fromBase64url(header.aid.slice(1)); // Remove "B" prefix
-  
+
   // VERIFY SIGNATURE FIRST
   const valid = await verifySignature(encryptedPayload, header.signature, publicKey);
   if (!valid) {
     throw new Error('Signature verification failed: checkpoint is not authentic');
   }
-  
+
   // Decrypt payload
   const privateKey = fromBase64url(identity.privateKey);
   const payload = decrypt(encryptedPayload, privateKey);
-  
+
   return {
     header,
     content: payload.content,
@@ -311,13 +464,13 @@ async function verifyCheckpoint(checkpointPath: string): Promise<{
 }> {
   const checkpoint = readFileSync(checkpointPath, 'utf-8');
   const { header, encryptedPayload } = parseCheckpoint(checkpoint);
-  
+
   // Extract public key from AID
   const publicKey = fromBase64url(header.aid.slice(1)); // Remove "B" prefix
-  
+
   // Verify signature
   const valid = await verifySignature(encryptedPayload, header.signature, publicKey);
-  
+
   return {
     valid,
     aid: header.aid,
@@ -335,30 +488,30 @@ async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
   const subcommand = args[1];
-  
+
   function getArg(name: string): string | undefined {
     const idx = args.indexOf(`--${name}`);
     return idx >= 0 ? args[idx + 1] : undefined;
   }
-  
+
   const defaultIdentityPath = join(process.env.HOME || '~', '.amcp', 'identity.json');
-  
+
   try {
     if (command === 'identity') {
       if (subcommand === 'create') {
         const outPath = getArg('out') || defaultIdentityPath;
         const parentAID = getArg('parent-aid');
-        
+
         console.log('Creating AMCP identity...');
         const identity = await createIdentity(parentAID);
         saveIdentity(identity, outPath);
-        
+
         console.log(`✅ Identity created`);
         console.log(`   AID: ${identity.aid}`);
         console.log(`   Created: ${identity.created}`);
         if (parentAID) console.log(`   Parent AID: ${parentAID}`);
         console.log(`   Saved to: ${outPath}`);
-        
+
       } else if (subcommand === 'show') {
         const identityPath = getArg('identity') || defaultIdentityPath;
         const identity = await loadIdentity(identityPath);
@@ -367,7 +520,7 @@ async function main() {
         console.log(`Public Key: ${identity.publicKey}`);
         console.log(`Created: ${identity.created}`);
         if (identity.parentAID) console.log(`Parent AID: ${identity.parentAID}`);
-        
+
       } else if (subcommand === 'validate') {
         const identityPath = getArg('path') || defaultIdentityPath;
 
@@ -389,7 +542,7 @@ async function main() {
         console.log('Usage: amcp identity <create|show|validate>');
         process.exit(1);
       }
-      
+
     } else if (command === 'checkpoint') {
       if (subcommand === 'create') {
         const identityPath = getArg('identity') || defaultIdentityPath;
@@ -397,51 +550,51 @@ async function main() {
         const secretsPath = getArg('secrets');
         const previousCID = getArg('previous');
         const outPath = getArg('out') || 'checkpoint.amcp';
-        
+
         if (!contentDir) {
           console.error('Error: --content <dir> is required');
           process.exit(1);
         }
-        
+
         const identity = await loadIdentity(identityPath);
         const secrets: Secret[] = secretsPath ? JSON.parse(readFileSync(secretsPath, 'utf-8')) : [];
-        
+
         console.log('Creating checkpoint...');
         const checkpoint = await createCheckpoint(identity, contentDir, secrets, previousCID);
         writeFileSync(outPath, checkpoint);
-        
+
         console.log(`✅ Checkpoint created`);
         console.log(`   AID: ${identity.aid}`);
         console.log(`   Timestamp: ${new Date().toISOString()}`);
         if (previousCID) console.log(`   Previous CID: ${previousCID}`);
         console.log(`   Saved to: ${outPath}`);
-        
+
       } else {
         console.log('Usage: amcp checkpoint create --content <dir> [--secrets <json>] [--previous <cid>] [--out <path>]');
         process.exit(1);
       }
-      
+
     } else if (command === 'resuscitate') {
       const checkpointPath = getArg('checkpoint');
       const identityPath = getArg('identity') || defaultIdentityPath;
       const outContentDir = getArg('out-content');
       const outSecretsPath = getArg('out-secrets');
-      
+
       if (!checkpointPath) {
         console.error('Error: --checkpoint <path> is required');
         process.exit(1);
       }
-      
+
       const identity = await loadIdentity(identityPath);
 
       console.log('Resuscitating from checkpoint...');
       const { header, content, secrets } = await resuscitate(checkpointPath, identity);
-      
+
       console.log(`✅ Checkpoint verified and decrypted`);
       console.log(`   AID: ${header.aid}`);
       console.log(`   Timestamp: ${header.timestamp}`);
       if (header.previousCID) console.log(`   Previous CID: ${header.previousCID}`);
-      
+
       // Write content if requested
       if (outContentDir) {
         mkdirSync(outContentDir, { recursive: true });
@@ -454,24 +607,24 @@ async function main() {
         }
         console.log(`   Content written to: ${outContentDir}`);
       }
-      
+
       // Write secrets if requested
       if (outSecretsPath) {
         writeFileSync(outSecretsPath, JSON.stringify(secrets, null, 2));
         console.log(`   Secrets written to: ${outSecretsPath}`);
       }
-      
+
     } else if (command === 'verify') {
       const checkpointPath = getArg('checkpoint');
-      
+
       if (!checkpointPath) {
         console.error('Error: --checkpoint <path> is required');
         process.exit(1);
       }
-      
+
       console.log('Verifying checkpoint...');
       const result = await verifyCheckpoint(checkpointPath);
-      
+
       if (result.valid) {
         console.log(`✅ Checkpoint is VALID`);
       } else {
@@ -481,9 +634,9 @@ async function main() {
       console.log(`   Timestamp: ${result.timestamp}`);
       if (result.parentAID) console.log(`   Parent AID: ${result.parentAID}`);
       if (result.previousCID) console.log(`   Previous CID: ${result.previousCID}`);
-      
+
       process.exit(result.valid ? 0 : 1);
-      
+
     } else {
       console.log(`AMCP CLI - Agent Memory Continuity Protocol
 
