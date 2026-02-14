@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 # AMCP CLI wrapper — resolves paths relative to install location
+# Ships pre-bundled JS (no TypeScript runtime, no native deps)
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0" 2>/dev/null || realpath "$0" 2>/dev/null || echo "$0")")" && pwd)"
-PKG_DIR="$(dirname "$SCRIPT_DIR")"
-exec "${PKG_DIR}/node_modules/.bin/tsx" "${SCRIPT_DIR}/amcp-cli.ts" "$@"
+exec node "${SCRIPT_DIR}/amcp-cli.mjs" "$@"

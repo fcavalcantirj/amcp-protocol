@@ -1,10 +1,18 @@
 {
   "name": "amcp-protocol",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "Agent Memory Continuity Protocol - Cryptographic identity and verifiable memory for AI agents",
-  "private": true,
   "type": "module",
+  "bin": {
+    "amcp": "./scripts/amcp"
+  },
+  "files": [
+    "scripts/amcp",
+    "scripts/amcp-cli.mjs"
+  ],
   "scripts": {
+    "build:cli": "esbuild scripts/amcp-cli.ts --bundle --platform=node --format=esm --outfile=scripts/amcp-cli.mjs --target=node22",
+    "prepublishOnly": "npm run build:cli",
     "build": "pnpm -r --workspace-concurrency=1 build",
     "build:core": "pnpm --filter @amcp/core build",
     "build:memory": "pnpm --filter @amcp/memory build",
@@ -37,18 +45,11 @@
     "url": "https://github.com/fcavalcantirj/amcp-protocol.git"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=22.0.0"
   },
   "devDependencies": {
+    "esbuild": "^0.27.3",
     "vitest": "^1.6.1"
   },
-  "bin": {
-    "amcp": "./scripts/amcp"
-  },
-  "dependencies": {
-    "@noble/ed25519": "^2.3.0",
-    "@noble/hashes": "^1.8.0",
-    "tsx": "^4.0.0"
-  }
+  "dependencies": {}
 }
