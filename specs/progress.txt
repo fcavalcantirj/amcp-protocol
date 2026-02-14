@@ -1,1 +1,16 @@
 # amcp-protocol Progress
+
+## 2026-02-14: Identity schema validation (prd-v1 task 1)
+- Created `packages/amcp-core/src/validate-identity.ts` — `validateIdentitySchema()` function
+  - Validates flat format: requires aid (string), publicKey (string), privateKey (string)
+  - Validates old agent format: requires agent.aid, agent.currentPublicKey, agent.currentPrivateKey
+  - Rejects non-KERI AIDs (must start with Ed25519 prefix "B")
+  - Rejects openclaw-deploy-style identities (sha256 AID, no KERI prefix)
+  - Collects all errors (doesn't fail on first)
+- Integrated into `loadIdentity()` in `scripts/amcp-cli.ts` (line 111)
+  - Calls `validateIdentitySchema()` before format detection
+  - Throws descriptive error on invalid identity with all collected errors
+- Exported `validateIdentitySchema` and `IdentityValidationResult` from `@amcp/core` index
+- Exported `isValidAid` from `@amcp/core` index (was missing)
+- Added 17 test cases in `packages/amcp-core/src/test/validate-identity.test.ts`
+- All 198 tests pass, build succeeds

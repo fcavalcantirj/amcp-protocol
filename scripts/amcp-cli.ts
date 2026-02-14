@@ -22,6 +22,7 @@ import * as ed from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha256';
+import { validateIdentitySchema } from '../packages/amcp-core/src/validate-identity.js';
 
 // Required for @noble/ed25519 v2
 ed.etc.sha512Sync = (...m: Uint8Array[]) => sha512(ed.etc.concatBytes(...m));
@@ -106,12 +107,18 @@ async function createIdentity(parentAID?: string): Promise<Identity> {
 function loadIdentity(path: string): Identity {
   const data = readFileSync(path, 'utf-8');
   const parsed = JSON.parse(data);
-  
+
+  // Schema validation — reject identities missing required KERI fields
+  const validation = validateIdentitySchema(parsed);
+  if (!validation.valid) {
+    throw new Error(`Invalid identity: ${validation.errors.join('; ')}`);
+  }
+
   // Handle new format (flat)
   if (parsed.aid && parsed.publicKey && parsed.privateKey) {
     return parsed;
   }
-  
+
   // Handle old format (agent/chain structure)
   if (parsed.agent) {
     return {
@@ -122,7 +129,7 @@ function loadIdentity(path: string): Identity {
       parentAID: undefined
     };
   }
-  
+
   throw new Error('Unknown identity format');
 }
 

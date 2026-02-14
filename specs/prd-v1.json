@@ -9,7 +9,7 @@
       "Throw descriptive error on missing/wrong-typed fields: 'Invalid identity: missing agent.aid (expected KERI AID string)'",
       "Verify: loading openclaw-deploy-style flat identity (sha256 aid, secrets.pinata_jwt, no kel) throws immediately"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "validation",

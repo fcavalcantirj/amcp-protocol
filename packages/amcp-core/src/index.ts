@@ -35,7 +35,8 @@ export {
   fromBase64url,
   type Keypair 
 } from './crypto.js';
-export { aidFromPublicKey, publicKeyFromAid } from './aid.js';
+export { aidFromPublicKey, publicKeyFromAid, isValidAid } from './aid.js';
+export { validateIdentitySchema, type IdentityValidationResult } from './validate-identity.js';
 export {
   generateMnemonic,
   mnemonicToSeed,
