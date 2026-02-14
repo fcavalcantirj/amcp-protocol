@@ -47,7 +47,7 @@
       "verifyKEL() validates: non-empty KEL, inception event at sn=0, event signatures, chain integrity, rotation key commitments (lines 182-228)",
       "Call after schema validation in loadIdentity(), reject if KEL is empty, missing inception, or has invalid signature"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "api",

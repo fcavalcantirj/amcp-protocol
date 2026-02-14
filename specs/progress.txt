@@ -41,3 +41,15 @@
   - Rejection: empty object, openclaw-deploy fake, invalid curve point, 0xFF fill, AID-publicKey mismatch, empty KEL, KEL AID mismatch
   - Acceptance: valid flat identity, valid with KEL, valid old-format, no KEL skips check, multi-error collection
 - All 221 tests pass, build succeeds
+
+## 2026-02-14: KEL integrity check in loadIdentity() (prd-v1 task 4)
+- Upgraded `loadIdentity()` in `scripts/amcp-cli.ts` to use `validateIdentityFull()` instead of `validateIdentitySchema()`
+  - Now runs all 4 validation layers on load: schema, AID crypto, AID-publicKey consistency, KEL integrity
+  - Calls `verifyKEL()` via `validateIdentityFull()` — rejects corrupt/missing inception events
+  - Made `loadIdentity()` async (required for `verifyKEL()` async crypto)
+  - Updated all 3 call sites to `await loadIdentity()` (identity show, checkpoint create, resuscitate)
+  - Removed unused `validateIdentitySchema` import (superseded by `validateIdentityFull`)
+- Added 9 test cases in `packages/amcp-core/src/test/load-identity-kel.test.ts`
+  - Rejection: empty KEL, missing inception (starts with rotation), wrong inception sn, corrupted signature, tampered AID, KEL AID mismatch
+  - Acceptance: valid KEL from createAgent, identity without KEL, old-format with valid KEL
+- All 230 tests pass, build succeeds

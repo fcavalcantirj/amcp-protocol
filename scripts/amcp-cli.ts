@@ -23,7 +23,7 @@ import * as ed from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha256';
-import { validateIdentitySchema, validateIdentityFull } from '../packages/amcp-core/src/validate-identity.js';
+import { validateIdentityFull } from '../packages/amcp-core/src/validate-identity.js';
 
 // Required for @noble/ed25519 v2
 ed.etc.sha512Sync = (...m: Uint8Array[]) => sha512(ed.etc.concatBytes(...m));
@@ -105,12 +105,12 @@ async function createIdentity(parentAID?: string): Promise<Identity> {
   };
 }
 
-function loadIdentity(path: string): Identity {
+async function loadIdentity(path: string): Promise<Identity> {
   const data = readFileSync(path, 'utf-8');
   const parsed = JSON.parse(data);
 
-  // Schema validation — reject identities missing required KERI fields
-  const validation = validateIdentitySchema(parsed);
+  // Full validation — schema, AID crypto, AID-publicKey consistency, and KEL integrity
+  const validation = await validateIdentityFull(parsed);
   if (!validation.valid) {
     throw new Error(`Invalid identity: ${validation.errors.join('; ')}`);
   }
@@ -361,8 +361,8 @@ async function main() {
         
       } else if (subcommand === 'show') {
         const identityPath = getArg('identity') || defaultIdentityPath;
-        const identity = loadIdentity(identityPath);
-        
+        const identity = await loadIdentity(identityPath);
+
         console.log(`AID: ${identity.aid}`);
         console.log(`Public Key: ${identity.publicKey}`);
         console.log(`Created: ${identity.created}`);
@@ -403,7 +403,7 @@ async function main() {
           process.exit(1);
         }
         
-        const identity = loadIdentity(identityPath);
+        const identity = await loadIdentity(identityPath);
         const secrets: Secret[] = secretsPath ? JSON.parse(readFileSync(secretsPath, 'utf-8')) : [];
         
         console.log('Creating checkpoint...');
@@ -432,8 +432,8 @@ async function main() {
         process.exit(1);
       }
       
-      const identity = loadIdentity(identityPath);
-      
+      const identity = await loadIdentity(identityPath);
+
       console.log('Resuscitating from checkpoint...');
       const { header, content, secrets } = await resuscitate(checkpointPath, identity);
       
