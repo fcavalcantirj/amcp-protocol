@@ -74,5 +74,162 @@
       "Test valid KERI identity passes all checks (positive test — use createAgent() to generate valid fixture)"
     ],
     "passes": true
+  },
+  {
+    "category": "ontology",
+    "description": "Extend CheckpointMetadata interface — add ontologyGraphCID, soulHash, reconstructionSeam fields",
+    "steps": [
+      "Locate CheckpointMetadata interface in packages/amcp-memory/src/checkpoint.ts (currently around line 15-25)",
+      "Current fields: version, aid, timestamp, contentHash, secretsEncrypted, previousCID, signature",
+      "Add optional fields: ontologyGraphCID?: string (CIDv1 of graph.jsonl), soulHash?: string (SHA256 of SOUL.md), reconstructionSeam?: number (0-7, loading step when identity coalesces)",
+      "Update createCheckpoint() function (line 40-80) to accept these fields in metadata parameter",
+      "Add JSDoc comments explaining: ontologyGraphCID is CIDv1 of memory/ontology/graph.jsonl (omit if no ontology), soulHash is SHA256 for drift detection, reconstructionSeam is phenomenological marker (default: 7 = post-context-load)",
+      "Verify: TypeScript compilation succeeds, existing checkpoints without new fields remain valid (backward compatible)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ontology",
+    "description": "Add computeGraphCID() utility — compute CIDv1 of JSONL graph files",
+    "steps": [
+      "Create packages/amcp-memory/src/graph-cid.ts (<100 lines) with computeGraphCID(filePath: string): Promise<string>",
+      "Use multiformats library (add to package.json dependencies: 'multiformats': '^13.0.0')",
+      "Read JSONL file, compute SHA256 hash of content, create CID using multiformats: import { CID } from 'multiformats/cid'; import * as raw from 'multiformats/codecs/raw'; import { sha256 } from 'multiformats/hashes/sha2'",
+      "CID format: raw codec (0x55), sha256 hash (0x12), CIDv1, base32 encoding (produces 'bafkrei...' prefix)",
+      "Handle edge cases: missing file returns null, empty file returns CID of empty string, validate each line is valid JSON before hashing",
+      "Export from packages/amcp-memory/src/index.ts: export { computeGraphCID } from './graph-cid'",
+      "Verify: computeGraphCID() produces deterministic CIDs (same file content = same CID), matches IPFS CID computation"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ontology",
+    "description": "Define ontology entity types — TypeScript types for typed graphs",
+    "steps": [
+      "Create packages/amcp-memory/src/ontology-types.ts (<200 lines) with entity and relation type definitions",
+      "Base types: Entity { id: string; type: EntityType; properties: Record<string,any>; created: Date; updated: Date }, Relation { from_id: string; relation_type: RelationType; to_id: string; properties?: Record<string,any> }",
+      "Entity types enum: Person, Organization, Project, Task, Goal, Event, Location, Document, Message, Note, Account, Credential, Action, Policy",
+      "Relation types enum: has_owner, owns, has_task, part_of, member_of, blocks, depends_on, mentions, references",
+      "Concrete types: PersonEntity extends Entity { type: 'Person'; properties: { name: string; email?: string; phone?: string; notes?: string } }",
+      "Schema constraints interface: EntityConstraint { type: EntityType; required_properties: string[]; forbidden_properties?: string[]; acyclic_relations?: RelationType[] }",
+      "Export all types from packages/amcp-memory/src/index.ts",
+      "Verify: TypeScript strict mode passes, all entity types have proper type safety"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ontology",
+    "description": "Add validateOntologySchema() function — validate JSONL graph files",
+    "steps": [
+      "Create packages/amcp-memory/src/validate-ontology.ts (<150 lines) with validateOntologySchema(filePath: string): Promise<ValidationResult>",
+      "ValidationResult type: { valid: boolean; entity_count: number; relation_count: number; errors: string[] }",
+      "Validation checks: 1) Each line is valid JSON, 2) Each object has 'type' field (entity or relation), 3) Entities have required fields (id, type, properties, created, updated), 4) Relations have required fields (from_id, relation_type, to_id), 5) Relation integrity (from_id and to_id reference existing entity IDs), 6) Acyclic check for 'blocks' and 'depends_on' relations (detect cycles via DFS)",
+      "Build entity index while parsing: Map<string, Entity> for O(1) relation validation",
+      "Cycle detection: for each 'blocks' relation, run DFS from to_id, error if reaches from_id",
+      "Return detailed errors: 'Line 42: Relation from_id='task-123' references non-existent entity', 'Line 58: Circular dependency detected: task-A blocks task-B blocks task-A'",
+      "Export from packages/amcp-memory/src/index.ts",
+      "Verify: validateOntologySchema() rejects invalid graphs, accepts valid graphs, detects circular dependencies"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ontology",
+    "description": "SOUL drift detection utilities — computeSoulHash(), detectSoulDrift() with severity classification",
+    "steps": [
+      "Create packages/amcp-core/src/soul-drift.ts (<200 lines) with SOUL identity change detection utilities",
+      "computeSoulHash(soulContent: string): string — returns SHA256 hash of SOUL.md content (use @noble/hashes/sha256)",
+      "detectSoulDrift(previousHash: string, currentHash: string, previousContent: string, currentContent: string): DriftResult",
+      "DriftResult type: { drifted: boolean; severity: 'none' | 'minor' | 'moderate' | 'major'; lines_changed: number; diff_snippet?: string }",
+      "Severity rules: 0 lines = none, 1-4 = minor, 5-20 = moderate, >20 = major",
+      "Use diff algorithm: import { diffLines } from 'diff' (add 'diff' to package.json dependencies), count changed lines (insertions + deletions)",
+      "Include first 5 lines of unified diff in diff_snippet for logging",
+      "Export from packages/amcp-core/src/index.ts",
+      "Verify: detectSoulDrift() correctly classifies severity, diff computation matches command-line diff output"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ontology",
+    "description": "Reconstruction sequence utilities — standardize memory loading order API",
+    "steps": [
+      "Create packages/amcp-recovery/src/reconstruction.ts (<150 lines) defining canonical reconstruction sequence",
+      "ReconstructionStep enum: SOUL = 0, USER = 1, ONTOLOGY_SCHEMA = 2, ONTOLOGY_GRAPH = 3, CURATED_MEMORY = 4, EPHEMERAL_NOTES = 5, TOOLS = 6, SEAM = 7",
+      "loadMemorySequence(checkpointPath: string, outputDir: string): Promise<ReconstructionProgress> — orchestrates loading in canonical order",
+      "ReconstructionProgress type: { current_step: ReconstructionStep; steps_completed: ReconstructionStep[]; seam_crossed: boolean; errors: string[] }",
+      "Implementation: 1) Load SOUL.md -> 2) Load USER.md -> 3) Load ontology schema (if exists) -> 4) Validate and load graph.jsonl -> 5) Load MEMORY.md -> 6) Load daily notes -> 7) Load TOOLS.md -> 8) Set seam_crossed: true",
+      "Each step validates before proceeding: missing SOUL.md fails immediately (identity required), missing ontology skips steps 3-4 (optional)",
+      "Export from packages/amcp-recovery/src/index.ts",
+      "Verify: loadMemorySequence() follows canonical order, seam_crossed only true after all steps complete, missing optional files don't block progression"
+    ],
+    "passes": false
+  },
+  {
+    "category": "testing",
+    "description": "Unit tests for ontology validation — entity and relation schema enforcement",
+    "steps": [
+      "Create packages/amcp-memory/src/test/validate-ontology.test.ts using Vitest",
+      "Test 1: Valid graph with 2 entities + 1 relation passes validation (valid: true, no errors)",
+      "Test 2: Invalid JSON on line 3 fails with parse error",
+      "Test 3: Entity missing 'id' field fails with required field error",
+      "Test 4: Relation with from_id referencing non-existent entity fails with integrity error",
+      "Test 5: Circular dependency (task-A blocks task-B blocks task-A) fails with cycle detection error",
+      "Test 6: Empty file passes validation (valid: true, entity_count: 0, relation_count: 0)",
+      "Test 7: Mixed valid/invalid lines returns errors for invalid lines only",
+      "Run: pnpm test validate-ontology.test.ts",
+      "Verify: all 7 tests pass, error messages are descriptive"
+    ],
+    "passes": false
+  },
+  {
+    "category": "testing",
+    "description": "Unit tests for SOUL drift — identity change severity classification",
+    "steps": [
+      "Create packages/amcp-core/src/test/soul-drift.test.ts using Vitest",
+      "Test 1: Identical content produces no drift (severity: none, lines_changed: 0)",
+      "Test 2: 3 line change produces minor drift (severity: minor, lines_changed: 3)",
+      "Test 3: 12 line change produces moderate drift (severity: moderate, lines_changed: 12)",
+      "Test 4: 30 line change produces major drift (severity: major, lines_changed: 30)",
+      "Test 5: computeSoulHash() produces deterministic SHA256 (same content = same hash)",
+      "Test 6: diff_snippet contains unified diff output (starts with '@@' line markers)",
+      "Test 7: Empty previous content (first checkpoint) produces major drift but not an error (expected for initial checkpoint)",
+      "Run: pnpm test soul-drift.test.ts",
+      "Verify: all 7 tests pass, severity thresholds match specification (0, 1-4, 5-20, >20)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "testing",
+    "description": "Integration tests for graph CID — verify JSONL Merkle DAG computation",
+    "steps": [
+      "Create packages/amcp-memory/src/test/graph-cid.test.ts using Vitest",
+      "Test 1: computeGraphCID() produces deterministic CID (call twice on same file, verify identical CID)",
+      "Test 2: CID format validation (starts with 'bafkrei', is valid CIDv1, uses base32 encoding)",
+      "Test 3: Empty file produces valid CID (not null, not empty string)",
+      "Test 4: Same content in different files produces same CID (content-addressed property)",
+      "Test 5: Single-character change produces different CID (hash sensitivity)",
+      "Test 6: Non-existent file returns null (graceful handling)",
+      "Test 7: File with invalid JSON line still computes CID (content-addressed regardless of validity — validation is separate concern)",
+      "Run: pnpm test graph-cid.test.ts",
+      "Verify: all 7 tests pass, CID computation matches IPFS canonical format"
+    ],
+    "passes": false
+  },
+  {
+    "category": "documentation",
+    "description": "Update AMCP-SPEC-v0.2.md — add Layer 1 (Ontology) specification",
+    "steps": [
+      "Locate AMCP-SPEC-v0.2.md (likely in docs/ or root of amcp-protocol repo)",
+      "Add new section 'Layer 1: Ontology (Structured Knowledge)' after existing protocol sections (~200 lines)",
+      "Document three-layer architecture diagram (ASCII art): Layer 3 (Phenomenological) -> Layer 2 (AMCP) -> Layer 1 (Ontology)",
+      "Specify ontology format: append-only JSONL, entity and relation types, schema constraints, temporal awareness (created/updated timestamps)",
+      "Document checkpoint metadata extensions: ontologyGraphCID (optional CIDv1), soulHash (optional SHA256), reconstructionSeam (0-7 enum)",
+      "Specify validation requirements: schema enforcement, relation integrity, acyclic dependency checking",
+      "Document SOUL drift detection protocol: hash comparison, severity classification (minor/moderate/major), notification thresholds",
+      "Include reconstruction sequence specification: canonical order (SOUL -> USER -> schema -> graph -> memory -> notes -> tools -> SEAM)",
+      "Add examples: sample entity JSON, sample relation JSON, sample checkpoint metadata with ontology fields",
+      "Reference academic sources: AriGraph (IJCAI 2025), Zep/Graphiti, A-MEM (NeurIPS 2025), LumenNox phenomenology work",
+      "Verify: documentation is technically accurate, protocol version incremented if breaking changes (likely 0.2 -> 0.3)"
+    ],
+    "passes": false
   }
 ]
