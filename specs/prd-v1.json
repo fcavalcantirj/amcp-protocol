@@ -231,5 +231,102 @@
       "Verify: documentation is technically accurate, protocol version incremented if breaking changes (likely 0.2 -> 0.3)"
     ],
     "passes": false
+  },
+  {
+    "category": "ontology-evolution",
+    "description": "Add evolution tracking to CheckpointMetadata — track memory evolution chains across checkpoints",
+    "steps": [
+      "Extend CheckpointMetadata interface in packages/amcp-memory/src/checkpoint.ts (after ontologyGraphCID, soulHash, reconstructionSeam from Phase 1)",
+      "Add optional fields: evolutionChainCID?: string (CID of evolution.jsonl containing relation inference history), relatedEntitiesCount?: number (count of entities with inferred relations)",
+      "Update createCheckpoint() function to accept evolutionChainCID and relatedEntitiesCount in metadata parameter",
+      "Add JSDoc: evolutionChainCID points to JSONL log of automatic relation inferences (A-MEM pattern), relatedEntitiesCount is count of entities updated by evolution engine since last checkpoint",
+      "Modify serializeCheckpoint() to include new fields in JSON output (backward compatible — omit if undefined)",
+      "Verify: TypeScript compilation succeeds, checkpoints with evolution tracking serialize correctly, checkpoints without evolution fields remain valid"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ontology-evolution",
+    "description": "Unit tests for evolution tracking — verify evolution chain integrity",
+    "steps": [
+      "Create packages/amcp-memory/src/test/evolution-tracking.test.ts using Vitest",
+      "Test 1: createCheckpoint() with evolutionChainCID field, verify metadata includes field in serialized output",
+      "Test 2: Checkpoint without evolutionChainCID (Phase 1 checkpoint), verify backward compatible (field omitted, not null)",
+      "Test 3: relatedEntitiesCount = 5, verify count preserved through serialize/deserialize cycle",
+      "Test 4: Invalid CID format for evolutionChainCID rejected with validation error",
+      "Test 5: Evolution chain integrity — given checkpoint sequence with evolutionChainCID values, verify CID chain forms valid Merkle DAG (each CID references previous)",
+      "Test 6: Zero relatedEntitiesCount valid (no evolution in this checkpoint period)",
+      "Run: pnpm test evolution-tracking.test.ts",
+      "Verify: all 6 tests pass, evolution metadata persists correctly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "temporal",
+    "description": "Add temporal index utilities — buildTemporalIndex(), queryByTimeRange() for entity version history",
+    "steps": [
+      "Create packages/amcp-memory/src/temporal-index.ts (<200 lines) with temporal query utilities",
+      "Type definitions: TemporalIndexEntry { entity_id: string; checkpoint_cid: string; timestamp: Date; version_hash: string; properties_snapshot: Record<string,any> }, TemporalIndex = Map<string, TemporalIndexEntry[]>",
+      "buildTemporalIndex(checkpointCIDs: string[], storage: Storage): Promise<TemporalIndex> — fetches checkpoints, extracts entity snapshots, builds index sorted by timestamp",
+      "queryByTimeRange(index: TemporalIndex, entity_id: string, start_date?: Date, end_date?: Date): TemporalIndexEntry[] — filters index by entity and time range",
+      "getEntityHistory(index: TemporalIndex, entity_id: string): TemporalIndexEntry[] — returns full timeline for entity (all versions)",
+      "Implementation notes: version_hash = SHA256(JSON.stringify(properties)) for change detection, index stores snapshots (not full graph) for memory efficiency",
+      "Export from packages/amcp-memory/src/index.ts: export { buildTemporalIndex, queryByTimeRange, getEntityHistory, TemporalIndex, TemporalIndexEntry } from './temporal-index'",
+      "Verify: buildTemporalIndex() produces deterministic index, queryByTimeRange() filters correctly, entity with no history returns empty array (not error)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "temporal",
+    "description": "Unit tests for temporal queries — verify version history and time-based filtering",
+    "steps": [
+      "Create packages/amcp-memory/src/test/temporal-index.test.ts using Vitest",
+      "Test 1: Build index from 3 checkpoints, verify index contains entries for all checkpoints sorted chronologically",
+      "Test 2: Entity-123 exists in checkpoint-1 and checkpoint-2 with different properties, verify getEntityHistory() returns 2 versions with correct version_hash",
+      "Test 3: queryByTimeRange(entity-123, start: 2026-02-10, end: 2026-02-15) returns only versions within range",
+      "Test 4: Entity created in checkpoint-3, query range before checkpoint-3, returns empty array",
+      "Test 5: Non-existent entity_id, getEntityHistory() returns empty array (graceful handling)",
+      "Test 6: Entity properties unchanged across 2 checkpoints, verify version_hash identical (change detection works)",
+      "Test 7: buildTemporalIndex() with empty checkpoint list returns empty index (not error)",
+      "Test 8: Time zone handling — timestamps with different time zones compared correctly",
+      "Run: pnpm test temporal-index.test.ts",
+      "Verify: all 8 tests pass, temporal queries accurate, time filtering works across checkpoints"
+    ],
+    "passes": false
+  },
+  {
+    "category": "contract",
+    "description": "Define skill contract types — TypeScript interface for SkillOntologyContract",
+    "steps": [
+      "Create packages/amcp-core/src/skill-contract.ts (<200 lines) with skill ontology contract types",
+      "Type definitions: EntityType = 'Person' | 'Task' | 'Project' | 'Goal' | 'Event' | ... (comprehensive enum), RelationType = 'has_owner' | 'blocks' | 'depends_on' | ...",
+      "SkillOntologyContract interface: { skill_name: string; version: string; ontology: { reads: EntityType[]; writes: EntityType[]; preconditions: ContractPredicate[]; postconditions: ContractPredicate[] } }",
+      "ContractPredicate type: { entity_type: EntityType; condition: string; description?: string } (e.g., { entity_type: 'Task', condition: 'assignee exists', description: 'All tasks must have an assignee' })",
+      "validateContract(contract: SkillOntologyContract): ValidationResult — validates contract structure (required fields, valid entity types)",
+      "checkPreconditions(contract: SkillOntologyContract, graph: Entity[]): CheckResult — evaluates preconditions against current graph state",
+      "detectConflicts(contracts: SkillOntologyContract[]): ConflictResult[] — finds incompatible postconditions across contracts",
+      "Export from packages/amcp-core/src/index.ts: export types and validator functions",
+      "Verify: TypeScript strict mode passes, contract types are self-documenting with JSDoc comments"
+    ],
+    "passes": false
+  },
+  {
+    "category": "contract",
+    "description": "Unit tests for contract validation — verify precondition and postcondition checking",
+    "steps": [
+      "Create packages/amcp-core/src/test/skill-contract.test.ts using Vitest",
+      "Test 1: Valid contract with all required fields passes validateContract()",
+      "Test 2: Contract missing 'skill_name' field fails validation with descriptive error",
+      "Test 3: Invalid EntityType in reads array fails validation",
+      "Test 4: checkPreconditions() with condition 'Task.assignee exists', all Tasks have assignee, returns success",
+      "Test 5: checkPreconditions() with condition 'Task.assignee exists', some Tasks missing assignee, returns failure with list of violating entities",
+      "Test 6: detectConflicts() with two contracts having incompatible postconditions (skill-A: 'Task.status = done', skill-B: 'Task.status != done'), returns conflict",
+      "Test 7: Compatible contracts (skill-A writes Task, skill-B reads Task), detectConflicts() returns empty array",
+      "Test 8: Empty preconditions array valid (skill has no preconditions)",
+      "Test 9: Condition syntax validation — reject invalid condition strings (e.g., 'Task.assignee = = exists')",
+      "Run: pnpm test skill-contract.test.ts",
+      "Verify: all 9 tests pass, contract validation catches malformed contracts, precondition evaluation works"
+    ],
+    "passes": false
   }
 ]
