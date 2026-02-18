@@ -499,7 +499,7 @@
       "Export from packages/amcp-core/src/index.ts",
       "Verify: both providers compile and implement same interface"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "pinning",
@@ -516,7 +516,7 @@
       "Add error types: SolvrPinError, SolvrAuthError, SolvrTimeoutError",
       "Verify: SolvrProvider can pin CID to Solvr API"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "pinning",
@@ -595,7 +595,7 @@
       "Run: pnpm test pinning.test.ts",
       "Verify: all 7 tests pass"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "documentation",

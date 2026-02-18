@@ -80,3 +80,39 @@
   - Positive tests: valid KERI identity (from createAgent()) passes all 4 layers
 - Added 14 test cases covering all validation layers end-to-end
 - All 256 tests pass, build succeeds
+
+## 2026-02-18: PinningProvider interface for @amcp/core (prd-v1 pinning task 1)
+- Created `packages/amcp-core/src/pinning.ts` — PinningProvider abstraction for IPFS pinning services
+  - `PinningProvider` interface: `pin(cid, name?)`, `unpin(cid)`, `status(cid)`, `name` readonly property
+  - `PinStatus` enum: Queued, Pinning, Pinned, Failed
+  - `PinResult` type: `{ cid, requestId, status }`
+  - `PinningProviderConfig` type: `{ apiKey, baseUrl? }`
+  - `PinataProvider` class: implements PinningProvider for Pinata API (pin by hash, unpin, job status)
+  - `SolvrProvider` class: implements PinningProvider for Solvr API (POST/DELETE/GET /v1/pins)
+  - Error types: `PinataError`, `SolvrPinError`, `SolvrAuthError`, `SolvrTimeoutError`
+  - Both providers validate API key on construction (reject empty)
+  - Both accept configurable baseUrl with sensible defaults
+- Exported all types, classes, and enums from `@amcp/core` index.ts
+- Added 16 test cases in `packages/amcp-core/src/test/pinning.test.ts`
+  - PinStatus enum values, interface compliance for both providers
+  - Constructor validation (baseUrl defaults, custom baseUrl, empty API key rejection)
+  - Method existence and async behavior (pin, unpin, status)
+  - Type compatibility: both providers assignable to PinningProvider[]
+- All 272 tests pass, build succeeds
+
+## 2026-02-18: SolvrProvider implementation with retry/timeout (prd-v1 pinning task 2)
+- Extended `SolvrProvider` in `packages/amcp-core/src/pinning.ts`
+  - `SolvrProviderConfig` extends `PinningProviderConfig` with `timeoutMs?` (default 5min) and `maxRetries?` (default 3)
+  - `fetchWithRetry()` private method: exponential backoff on 429/5xx errors
+  - Abort-signal-based timeout: wraps fetch with AbortController, throws `SolvrTimeoutError` on abort
+  - Retry delays: 1s * 2^attempt (1s, 2s, 4s)
+- Added 5 tests for retry/timeout config in `packages/amcp-core/src/test/pinning.test.ts`
+  - Default timeout (5 min), custom timeout, default maxRetries (3), custom maxRetries
+  - SolvrTimeoutError construction and instanceof check
+- All 277 tests pass, build succeeds
+
+## 2026-02-18: PinningProvider test suite (prd-v1 testing/pinning task)
+- 21 tests total in `packages/amcp-core/src/test/pinning.test.ts`
+  - PinStatus enum, interface compliance, constructor config, method existence
+  - Both providers assignable to PinningProvider[], retry/timeout config, error types
+- All 277 tests pass, build succeeds

@@ -48,5 +48,19 @@ export {
   type MnemonicStrength
 } from './mnemonic.js';
 
+export {
+  PinStatus,
+  PinataProvider,
+  PinataError,
+  SolvrProvider,
+  SolvrPinError,
+  SolvrAuthError,
+  SolvrTimeoutError,
+  type PinningProvider,
+  type PinResult,
+  type PinningProviderConfig,
+  type SolvrProviderConfig,
+} from './pinning.js';
+
 // Re-export all types from types module
 export * from './types/index.js';
