@@ -4,7 +4,7 @@
  * A checkpoint is a signed snapshot of agent memory at a point in time.
  */
 
-import { signWithAgent, verifyAgentSignature, type Agent, type AID, type KeyEventLog } from '@amcp/core';
+import { signWithAgent, verifyAgentSignature, type Agent, type AID, type KeyEventLog, type PinningProvider } from '@amcp/core';
 import { computeJSONCID, type CID } from './cid.js';
 
 export interface CheckpointMetadata {
@@ -42,22 +42,42 @@ export interface UnsignedCheckpoint {
 }
 
 /**
+ * Options for checkpoint creation
+ */
+export interface CreateCheckpointOptions {
+  /** Optional pinning provider to pin the content CID after checkpoint creation */
+  pinningProvider?: PinningProvider;
+}
+
+/**
+ * Result of checkpoint creation
+ */
+export interface CreateCheckpointResult {
+  checkpoint: MemoryCheckpoint;
+  contentCid: CID;
+  /** Name of the pinning provider used, if any */
+  providerUsed?: string;
+}
+
+/**
  * Create a signed memory checkpoint
- * 
+ *
  * @param agent - Agent creating the checkpoint
  * @param content - Memory content to checkpoint (will be hashed to CID)
  * @param prior - CID of previous checkpoint (null for first)
  * @param metadata - Checkpoint metadata
+ * @param options - Optional: pinning provider to pin content after creation
  */
 export async function createCheckpoint(
   agent: Agent,
   content: unknown,
   prior: CID | null,
-  metadata: CheckpointMetadata
-): Promise<{ checkpoint: MemoryCheckpoint; contentCid: CID }> {
+  metadata: CheckpointMetadata,
+  options?: CreateCheckpointOptions
+): Promise<CreateCheckpointResult> {
   // Compute CID of content
   const contentCid = computeJSONCID(content);
-  
+
   // Build unsigned checkpoint
   const unsigned: UnsignedCheckpoint = {
     aid: agent.aid,
@@ -66,18 +86,26 @@ export async function createCheckpoint(
     timestamp: new Date().toISOString(),
     metadata
   };
-  
+
   // Sign the checkpoint
   const payload = JSON.stringify(unsigned, Object.keys(unsigned).sort());
   const payloadBytes = new TextEncoder().encode(payload);
   const { signature } = await signWithAgent(agent, payloadBytes);
-  
+
   const checkpoint: MemoryCheckpoint = {
     ...unsigned,
     signature
   };
-  
-  return { checkpoint, contentCid };
+
+  // Pin via provider if given
+  let providerUsed: string | undefined;
+  if (options?.pinningProvider) {
+    const provider = options.pinningProvider;
+    await provider.pin(contentCid, `amcp-checkpoint-${contentCid.slice(0, 12)}`);
+    providerUsed = provider.name;
+  }
+
+  return { checkpoint, contentCid, providerUsed };
 }
 
 /**

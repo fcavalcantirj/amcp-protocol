@@ -5,11 +5,13 @@
  * Each checkpoint is content-addressed (CID) and signed by the agent.
  */
 
-export { 
-  createCheckpoint, 
+export {
+  createCheckpoint,
   verifyCheckpoint,
   type MemoryCheckpoint,
-  type CheckpointMetadata 
+  type CheckpointMetadata,
+  type CreateCheckpointOptions,
+  type CreateCheckpointResult,
 } from './checkpoint.js';
 export { computeCID, type CID } from './cid.js';
 export { 

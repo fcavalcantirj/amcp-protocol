@@ -531,7 +531,7 @@
       "Add config option to specify default provider",
       "Verify: createCheckpoint() works with both Pinata and Solvr providers"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "pinning",

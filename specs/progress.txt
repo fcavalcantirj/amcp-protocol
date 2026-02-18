@@ -116,3 +116,16 @@
   - PinStatus enum, interface compliance, constructor config, method existence
   - Both providers assignable to PinningProvider[], retry/timeout config, error types
 - All 277 tests pass, build succeeds
+
+## 2026-02-18: Update createCheckpoint() to accept PinningProvider (prd-v1 pinning task 3)
+- Updated `createCheckpoint()` in `packages/amcp-memory/src/checkpoint.ts`
+  - Added optional 5th parameter: `options?: CreateCheckpointOptions`
+  - `CreateCheckpointOptions` interface: `{ pinningProvider?: PinningProvider }`
+  - `CreateCheckpointResult` interface: adds `providerUsed?: string` to return type
+  - If provider given: calls `provider.pin(contentCid, name)` after signing, sets `providerUsed`
+  - If no provider: backward compatible, `providerUsed` is undefined
+- Exported `CreateCheckpointOptions`, `CreateCheckpointResult` from `@amcp/memory` index
+- Added 6 test cases in `packages/amcp-memory/test/checkpoint-pinning.test.ts`
+  - Backward compatibility (no provider), provider integration, CID pinning verification
+  - Provider name tracking, signature validity with/without provider, prior chain support
+- All 320 tests pass (277 amcp-core + 43 amcp-memory), both packages build successfully
