@@ -9,7 +9,8 @@
       "Throw descriptive error on missing/wrong-typed fields: 'Invalid identity: missing agent.aid (expected KERI AID string)'",
       "Verify: loading openclaw-deploy-style flat identity (sha256 aid, secrets.pinata_jwt, no kel) throws immediately"
     ],
-    "passes": true
+    "passes": true,
+    "phase": 1
   },
   {
     "category": "validation",
@@ -22,7 +23,8 @@
       "Export isValidAid from packages/amcp-core/src/index.ts (currently missing from exports)",
       "Verify: sha256-derived AID from openclaw-deploy is rejected"
     ],
-    "passes": true
+    "passes": true,
+    "phase": 1
   },
   {
     "category": "validation",
@@ -35,7 +37,8 @@
       "Output structured result: { valid: true } or { valid: false, errors: [...] }",
       "Exit code 0 on valid, 1 on invalid — designed for scripting use by proactive-amcp and openclaw-deploy"
     ],
-    "passes": true
+    "passes": true,
+    "phase": 1
   },
   {
     "category": "validation",
@@ -47,7 +50,8 @@
       "verifyKEL() validates: non-empty KEL, inception event at sn=0, event signatures, chain integrity, rotation key commitments (lines 182-228)",
       "Call after schema validation in loadIdentity(), reject if KEL is empty, missing inception, or has invalid signature"
     ],
-    "passes": true
+    "passes": true,
+    "phase": 1
   },
   {
     "category": "api",
@@ -60,7 +64,8 @@
       "Export from packages/amcp-core/src/index.ts",
       "Verify: import { validateIdentityFile } from '@amcp/core' works"
     ],
-    "passes": true
+    "passes": true,
+    "phase": 1
   },
   {
     "category": "testing",
@@ -73,7 +78,8 @@
       "Test validateIdentityFile() returns { valid: false } with multiple errors for fake identity",
       "Test valid KERI identity passes all checks (positive test — use createAgent() to generate valid fixture)"
     ],
-    "passes": true
+    "passes": true,
+    "phase": 1
   },
   {
     "category": "ontology",
@@ -86,7 +92,8 @@
       "Add JSDoc comments explaining: ontologyGraphCID is CIDv1 of memory/ontology/graph.jsonl (omit if no ontology), soulHash is SHA256 for drift detection, reconstructionSeam is phenomenological marker (default: 7 = post-context-load)",
       "Verify: TypeScript compilation succeeds, existing checkpoints without new fields remain valid (backward compatible)"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 2
   },
   {
     "category": "ontology",
@@ -100,7 +107,8 @@
       "Export from packages/amcp-memory/src/index.ts: export { computeGraphCID } from './graph-cid'",
       "Verify: computeGraphCID() produces deterministic CIDs (same file content = same CID), matches IPFS CID computation"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 2
   },
   {
     "category": "ontology",
@@ -115,7 +123,8 @@
       "Export all types from packages/amcp-memory/src/index.ts",
       "Verify: TypeScript strict mode passes, all entity types have proper type safety"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 2
   },
   {
     "category": "ontology",
@@ -130,7 +139,8 @@
       "Export from packages/amcp-memory/src/index.ts",
       "Verify: validateOntologySchema() rejects invalid graphs, accepts valid graphs, detects circular dependencies"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 2
   },
   {
     "category": "ontology",
@@ -146,7 +156,8 @@
       "Export from packages/amcp-core/src/index.ts",
       "Verify: detectSoulDrift() correctly classifies severity, diff computation matches command-line diff output"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 2
   },
   {
     "category": "ontology",
@@ -161,7 +172,8 @@
       "Export from packages/amcp-recovery/src/index.ts",
       "Verify: loadMemorySequence() follows canonical order, seam_crossed only true after all steps complete, missing optional files don't block progression"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 2
   },
   {
     "category": "testing",
@@ -178,7 +190,8 @@
       "Run: pnpm test validate-ontology.test.ts",
       "Verify: all 7 tests pass, error messages are descriptive"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 1
   },
   {
     "category": "testing",
@@ -195,7 +208,8 @@
       "Run: pnpm test soul-drift.test.ts",
       "Verify: all 7 tests pass, severity thresholds match specification (0, 1-4, 5-20, >20)"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 1
   },
   {
     "category": "testing",
@@ -212,13 +226,14 @@
       "Run: pnpm test graph-cid.test.ts",
       "Verify: all 7 tests pass, CID computation matches IPFS canonical format"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 1
   },
   {
     "category": "documentation",
     "description": "Update AMCP-SPEC-v0.2.md — add Layer 1 (Ontology) specification",
     "steps": [
-      "Locate AMCP-SPEC-v0.2.md (likely in docs/ or root of amcp-protocol repo)",
+      "Locate AMCP-SPEC-v0.2.md at AMCP-SPEC-v0.2.md (root of repo)",
       "Add new section 'Layer 1: Ontology (Structured Knowledge)' after existing protocol sections (~200 lines)",
       "Document three-layer architecture diagram (ASCII art): Layer 3 (Phenomenological) -> Layer 2 (AMCP) -> Layer 1 (Ontology)",
       "Specify ontology format: append-only JSONL, entity and relation types, schema constraints, temporal awareness (created/updated timestamps)",
@@ -228,9 +243,10 @@
       "Include reconstruction sequence specification: canonical order (SOUL -> USER -> schema -> graph -> memory -> notes -> tools -> SEAM)",
       "Add examples: sample entity JSON, sample relation JSON, sample checkpoint metadata with ontology fields",
       "Reference academic sources: AriGraph (IJCAI 2025), Zep/Graphiti, A-MEM (NeurIPS 2025), LumenNox phenomenology work",
-      "Verify: documentation is technically accurate, protocol version incremented if breaking changes (likely 0.2 -> 0.3)"
+      "Verify: documentation is technically accurate, protocol version incremented if breaking changes (increment to 0.3 if breaking changes)"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 3
   },
   {
     "category": "ontology-evolution",
@@ -243,7 +259,8 @@
       "Modify serializeCheckpoint() to include new fields in JSON output (backward compatible — omit if undefined)",
       "Verify: TypeScript compilation succeeds, checkpoints with evolution tracking serialize correctly, checkpoints without evolution fields remain valid"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 3
   },
   {
     "category": "ontology-evolution",
@@ -259,7 +276,8 @@
       "Run: pnpm test evolution-tracking.test.ts",
       "Verify: all 6 tests pass, evolution metadata persists correctly"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 3
   },
   {
     "category": "temporal",
@@ -274,7 +292,8 @@
       "Export from packages/amcp-memory/src/index.ts: export { buildTemporalIndex, queryByTimeRange, getEntityHistory, TemporalIndex, TemporalIndexEntry } from './temporal-index'",
       "Verify: buildTemporalIndex() produces deterministic index, queryByTimeRange() filters correctly, entity with no history returns empty array (not error)"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 3
   },
   {
     "category": "temporal",
@@ -292,7 +311,8 @@
       "Run: pnpm test temporal-index.test.ts",
       "Verify: all 8 tests pass, temporal queries accurate, time filtering works across checkpoints"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 3
   },
   {
     "category": "contract",
@@ -308,7 +328,8 @@
       "Export from packages/amcp-core/src/index.ts: export types and validator functions",
       "Verify: TypeScript strict mode passes, contract types are self-documenting with JSDoc comments"
     ],
-    "passes": false
+    "passes": false,
+    "phase": 3
   },
   {
     "category": "contract",
@@ -327,6 +348,288 @@
       "Run: pnpm test skill-contract.test.ts",
       "Verify: all 9 tests pass, contract validation catches malformed contracts, precondition evaluation works"
     ],
+    "passes": false,
+    "phase": 3
+  },
+  {
+    "category": "learning",
+    "description": "Extend CheckpointMetadata interface — add unresolvedProblems, recentLearnings, learningStats fields per protocol-09",
+    "steps": [
+      "Locate CheckpointMetadata interface in packages/amcp-memory/src/checkpoint.ts",
+      "Add optional fields: unresolvedProblems?: Problem[] (problems with status != solved at checkpoint time), recentLearnings?: Learning[] (learnings acquired since last checkpoint), learningStats?: LearningStats",
+      "LearningStats type: { totalProblems: number; totalSolved: number; solvedPostRecovery: number; totalLearnings: number }",
+      "Update createCheckpoint() function to accept these fields in metadata parameter",
+      "Add JSDoc comments: unresolvedProblems is serialized from memory/learning/problems.jsonl filtered by status, recentLearnings is delta since previous checkpoint, solvedPostRecovery tracks self-improvement metric",
+      "Verify: TypeScript compilation succeeds, existing checkpoints without learning fields remain valid (backward compatible)"
+    ],
+    "passes": false,
+    "phase": 2
+  },
+  {
+    "category": "learning",
+    "description": "Define Problem and Learning entity types — TypeScript types per protocol-09-learning-schema",
+    "steps": [
+      "Create packages/amcp-memory/src/learning-types.ts (<150 lines) with Problem and Learning type definitions",
+      "ProblemStatus enum: open, stuck, solved, abandoned",
+      "Problem type: { id: string; description: string; status: ProblemStatus; blocker?: string; attempts: number; lastApproach?: string; retryAfter?: Date; created: Date; updated: Date; resolved?: Date; humanVerified: boolean; source: 'command' | 'skill' | 'self-detect' }",
+      "LearningConfidence enum: tentative, verified",
+      "Learning type: { id: string; insight: string; sourceProblem?: string; confidence: LearningConfidence; humanVerified: boolean; verifiedAt?: Date; tags: string[]; created: Date }",
+      "ID format validators: isProblemId(id: string): boolean (matches prob_{uuid8}), isLearningId(id: string): boolean (matches learn_{uuid8})",
+      "Export all types from packages/amcp-memory/src/index.ts",
+      "Verify: TypeScript strict mode passes, types match protocol-09-learning-schema.json specification"
+    ],
+    "passes": false,
+    "phase": 2
+  },
+  {
+    "category": "learning",
+    "description": "Add validateLearningData() function — validate Problem and Learning JSONL files",
+    "steps": [
+      "Create packages/amcp-memory/src/validate-learning.ts (<150 lines) with validateLearningData(dirPath: string): Promise<ValidationResult>",
+      "ValidationResult type: { valid: boolean; problemCount: number; learningCount: number; errors: string[] }",
+      "Validation checks: 1) problems.jsonl exists and each line is valid JSON matching Problem schema, 2) learnings.jsonl exists and each line is valid JSON matching Learning schema, 3) stats.json exists and has required fields",
+      "Cross-reference validation: Learning.sourceProblem (if set) references existing Problem ID",
+      "Status consistency: stats.totalProblems matches actual problem count, stats.totalSolved matches count of status=solved",
+      "Return detailed errors: 'problems.jsonl line 15: missing required field description', 'learnings.jsonl line 8: sourceProblem prob_abc123 not found'",
+      "Export from packages/amcp-memory/src/index.ts",
+      "Verify: validateLearningData() rejects invalid data, accepts valid data, cross-references are enforced"
+    ],
+    "passes": false,
+    "phase": 2
+  },
+  {
+    "category": "learning",
+    "description": "Add computeLearningStats() utility — aggregate statistics from JSONL files",
+    "steps": [
+      "Add computeLearningStats(dirPath: string): Promise<LearningStats> to packages/amcp-memory/src/validate-learning.ts",
+      "Parse problems.jsonl, count by status: open, stuck, solved, abandoned",
+      "Parse learnings.jsonl, count by confidence: tentative, verified",
+      "Compute solvedPostRecovery: count problems where resolved timestamp > agent's last resurrection timestamp (passed as parameter or read from checkpoint metadata)",
+      "Return LearningStats: { totalProblems, totalSolved, solvedPostRecovery, totalLearnings, problemsByStatus, learningsByConfidence }",
+      "Handle missing files gracefully: return zeros if memory/learning/ doesn't exist",
+      "Export from packages/amcp-memory/src/index.ts",
+      "Verify: stats computation matches manual count, handles empty/missing files"
+    ],
+    "passes": false,
+    "phase": 2
+  },
+  {
+    "category": "testing",
+    "description": "Unit tests for learning types — verify Problem and Learning schema validation",
+    "steps": [
+      "Create packages/amcp-memory/src/test/learning-types.test.ts using Vitest",
+      "Test 1: Valid Problem object passes type check, all required fields present",
+      "Test 2: Problem missing 'description' field fails validation",
+      "Test 3: Problem with invalid status value fails validation",
+      "Test 4: Valid Learning object passes type check",
+      "Test 5: Learning with invalid confidence value fails validation",
+      "Test 6: isProblemId('prob_abc12345') returns true, isProblemId('invalid') returns false",
+      "Test 7: isLearningId('learn_xyz98765') returns true, isLearningId('prob_abc12345') returns false",
+      "Run: pnpm test learning-types.test.ts",
+      "Verify: all 7 tests pass, type validation catches schema violations"
+    ],
+    "passes": false,
+    "phase": 1
+  },
+  {
+    "category": "testing",
+    "description": "Unit tests for learning validation — verify JSONL parsing and cross-reference checks",
+    "steps": [
+      "Create packages/amcp-memory/src/test/validate-learning.test.ts using Vitest",
+      "Test 1: Valid memory/learning/ directory with problems.jsonl, learnings.jsonl, stats.json passes validation",
+      "Test 2: Invalid JSON on line 3 of problems.jsonl fails with parse error",
+      "Test 3: Learning references non-existent Problem ID fails with cross-reference error",
+      "Test 4: stats.json totalProblems doesn't match actual count fails with consistency error",
+      "Test 5: Empty directory (no files) returns valid=true with zero counts (graceful degradation)",
+      "Test 6: Missing problems.jsonl but learnings.jsonl exists, returns partial validation (problems count=0)",
+      "Test 7: computeLearningStats() matches expected counts for test fixture",
+      "Run: pnpm test validate-learning.test.ts",
+      "Verify: all 7 tests pass, validation catches all specified error types"
+    ],
+    "passes": false,
+    "phase": 1
+  },
+  {
+    "category": "testing",
+    "description": "Integration tests for learning checkpoint — verify learning data roundtrip through checkpoint/restore",
+    "steps": [
+      "Create packages/amcp-memory/src/test/learning-checkpoint.test.ts using Vitest",
+      "Test 1: Create checkpoint with unresolvedProblems array, verify metadata includes serialized problems",
+      "Test 2: Create checkpoint with recentLearnings array, verify metadata includes serialized learnings",
+      "Test 3: Create checkpoint with learningStats, verify stats preserved through serialize/deserialize",
+      "Test 4: Checkpoint without learning fields (backward compatible), verify no errors",
+      "Test 5: Restore checkpoint with learning data, verify memory/learning/ directory recreated correctly",
+      "Test 6: solvedPostRecovery metric: create problem, checkpoint, restore, solve problem, checkpoint again, verify solvedPostRecovery incremented",
+      "Run: pnpm test learning-checkpoint.test.ts",
+      "Verify: all 6 tests pass, learning data survives checkpoint/restore cycle"
+    ],
+    "passes": false,
+    "phase": 1
+  },
+  {
+    "category": "documentation",
+    "description": "Update AMCP-SPEC — add Learning Layer specification per protocol-09",
+    "steps": [
+      "Update AMCP-SPEC-v0.2.md or create AMCP-SPEC-v0.3.md in same location",
+      "Document Problem entity schema: id format (prob_{uuid8}), required/optional fields, status enum, source tracking",
+      "Document Learning entity schema: id format (learn_{uuid8}), confidence levels, human verification requirement",
+      "Document checkpoint metadata extensions: unresolvedProblems, recentLearnings, learningStats",
+      "Specify validation requirements: schema enforcement, cross-reference integrity, stats consistency",
+      "Document self-improvement metric: solvedPostRecovery / totalSolved = capability growth rate",
+      "Include examples: sample Problem JSON, sample Learning JSON, sample checkpoint metadata with learning fields",
+      "Reference protocol-09-learning-schema.json as canonical schema definition",
+      "Document trigger types: command prefix (/remember, /stuck, /learned), SKILL matching, self-detect",
+      "Verify: documentation matches TypeScript types, all fields documented with JSDoc-style descriptions"
+    ],
+    "passes": false,
+    "phase": 3
+  },
+  {
+    "category": "pinning",
+    "phase": 1,
+    "description": "Add PinningProvider interface to @amcp/core — abstraction for IPFS pinning services",
+    "steps": [
+      "Create packages/amcp-core/src/pinning.ts with PinningProvider interface",
+      "Interface methods: pin(cid: string, name?: string): Promise<PinResult>, unpin(cid: string): Promise<void>, status(cid: string): Promise<PinStatus>",
+      "PinResult type: { cid: string, requestId: string, status: PinStatus }",
+      "PinStatus enum: Queued, Pinning, Pinned, Failed",
+      "Add PinataProvider class implementing PinningProvider (existing behavior)",
+      "Add SolvrProvider class implementing PinningProvider (new)",
+      "SolvrProvider calls: POST /v1/pins, GET /v1/pins/:id, DELETE /v1/pins/:id",
+      "Export from packages/amcp-core/src/index.ts",
+      "Verify: both providers compile and implement same interface"
+    ],
     "passes": false
+  },
+  {
+    "category": "pinning",
+    "phase": 1,
+    "description": "Implement SolvrProvider — Solvr pinning API client in TypeScript",
+    "steps": [
+      "Create packages/amcp-core/src/providers/solvr.ts with SolvrProvider class",
+      "Constructor: accepts { apiKey: string, baseUrl?: string } (default: https://api.solvr.dev)",
+      "pin() method: POST /v1/pins with { cid, name }, poll for status=pinned",
+      "unpin() method: DELETE /v1/pins/:requestId",
+      "status() method: GET /v1/pins/:requestId, parse status field",
+      "Add timeout handling: max 5 minutes for pin completion",
+      "Add retry logic: exponential backoff on 429/5xx errors",
+      "Add error types: SolvrPinError, SolvrAuthError, SolvrTimeoutError",
+      "Verify: SolvrProvider can pin CID to Solvr API"
+    ],
+    "passes": false
+  },
+  {
+    "category": "pinning",
+    "phase": 1,
+    "description": "Update createCheckpoint() to accept PinningProvider — decouple from Pinata",
+    "steps": [
+      "Locate createCheckpoint() in packages/amcp-memory/src/checkpoint.ts",
+      "Add optional pinningProvider parameter: pinningProvider?: PinningProvider",
+      "If provided: use pinningProvider.pin() instead of hardcoded Pinata call",
+      "If not provided: fall back to PinataProvider (backward compatible)",
+      "Update return type to include providerUsed: 'pinata' | 'solvr' | string",
+      "Add config option to specify default provider",
+      "Verify: createCheckpoint() works with both Pinata and Solvr providers"
+    ],
+    "passes": false
+  },
+  {
+    "category": "pinning",
+    "phase": 2,
+    "description": "Add multi-provider support — pin to multiple services for redundancy",
+    "steps": [
+      "Create packages/amcp-core/src/providers/multi.ts with MultiProvider class",
+      "Constructor: accepts PinningProvider[] array",
+      "pin() method: calls all providers in parallel, returns first success",
+      "Option: requireAll (all must succeed) vs requireOne (any success is OK)",
+      "Track results: { provider: string, success: boolean, cid?: string, error?: string }[]",
+      "Return combined result with all provider statuses",
+      "Add to checkpoint metadata: providers: { name: string, cid: string }[]",
+      "Verify: MultiProvider pins to both Pinata and Solvr simultaneously"
+    ],
+    "passes": false
+  },
+  {
+    "category": "verification",
+    "phase": 2,
+    "description": "Add checkpoint verification via Solvr — cross-check CID availability",
+    "steps": [
+      "Create packages/amcp-core/src/verify.ts with verifyCheckpoint() function",
+      "Accept: cid, providers (array of PinningProvider)",
+      "Check each provider: status(cid) returns Pinned",
+      "Compare content: fetch from multiple gateways, verify hashes match",
+      "Return VerificationResult: { verified: boolean, providers: { name: string, available: boolean }[], contentMatch: boolean }",
+      "Add to resuscitate flow: verify checkpoint before restore",
+      "Verify: checkpoint pinned to both Pinata and Solvr passes verification"
+    ],
+    "passes": false
+  },
+  {
+    "category": "metadata",
+    "phase": 2,
+    "description": "Extend CheckpointMetadata with pinning provider information",
+    "steps": [
+      "Locate CheckpointMetadata interface in packages/amcp-memory/src/checkpoint.ts",
+      "Add optional field: pinningProviders?: { name: string, cid: string, requestId?: string }[]",
+      "Add optional field: primaryProvider?: string (which provider to use for retrieval)",
+      "Update createCheckpoint() to populate these fields",
+      "Update verifyCheckpoint() to use provider info for verification",
+      "Backward compatible: old checkpoints without these fields still work",
+      "Verify: checkpoint metadata includes provider information"
+    ],
+    "passes": false
+  },
+  {
+    "category": "testing",
+    "phase": 1,
+    "description": "Unit tests for PinningProvider implementations — Pinata and Solvr",
+    "steps": [
+      "Create packages/amcp-core/src/test/pinning.test.ts using Vitest",
+      "Test 1: PinataProvider.pin() returns valid CID (mock HTTP)",
+      "Test 2: SolvrProvider.pin() returns valid CID (mock HTTP)",
+      "Test 3: SolvrProvider handles rate limiting with retry",
+      "Test 4: SolvrProvider times out after 5 minutes",
+      "Test 5: Both providers implement same interface (type check)",
+      "Test 6: MultiProvider pins to all providers",
+      "Test 7: MultiProvider handles partial failure (one succeeds, one fails)",
+      "Run: pnpm test pinning.test.ts",
+      "Verify: all 7 tests pass"
+    ],
+    "passes": false
+  },
+  {
+    "category": "documentation",
+    "phase": 3,
+    "description": "Update AMCP-SPEC with pinning provider abstraction",
+    "steps": [
+      "Add 'Pinning Providers' section to AMCP-SPEC",
+      "Document PinningProvider interface contract",
+      "Document built-in providers: Pinata, Solvr",
+      "Document multi-provider redundancy pattern",
+      "Document checkpoint verification flow",
+      "Include code examples for custom provider implementation",
+      "Verify: documentation matches implementation"
+    ],
+    "passes": false
+  },
+  {
+    "category": "solvr-integration",
+    "phase": 1,
+    "description": "Add Solvr IPFS server details to AMCP config — solvr-ipfs-01 connection info",
+    "steps": [
+      "Document live Solvr IPFS server in DEPLOYMENT.md: solvr-ipfs-01 @ 65.109.134.87",
+      "Add to config schema: storage.solvr.ipfsServer: { ip, peer_id, gateway_url }",
+      "Default gateway: https://ipfs.solvr.dev/ipfs/ (will proxy to solvr-ipfs-01)",
+      "Peer ID for direct connections: 12D3KooWJG6rZ1KWTQy1fPeaZuxhfukik3RmYTjyf76Yn6CwUP3A",
+      "Verify: AMCP CLI can connect to Solvr IPFS for checkpoint retrieval"
+    ],
+    "passes": false,
+    "server_info": {
+      "name": "solvr-ipfs-01",
+      "ip": "65.109.134.87",
+      "peer_id": "12D3KooWJG6rZ1KWTQy1fPeaZuxhfukik3RmYTjyf76Yn6CwUP3A",
+      "kubo_version": "0.39.0",
+      "deployed": "2026-02-17"
+    }
   }
 ]
