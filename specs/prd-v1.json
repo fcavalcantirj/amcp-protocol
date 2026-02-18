@@ -463,7 +463,7 @@
       "Run: pnpm test learning-checkpoint.test.ts",
       "Verify: all 6 tests pass, learning data survives checkpoint/restore cycle"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 1
   },
   {

@@ -215,3 +215,15 @@
   - Missing problems.jsonl with learnings.jsonl returns partial validation
   - computeLearningStats matches expected counts, returns zeros for empty directory
 - All 414 tests pass (287 amcp-core + 85 amcp-memory + 26 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Learning checkpoint integration tests (prd-v1 task 28)
+- Created `packages/amcp-memory/test/learning-checkpoint.test.ts` — learning data roundtrip through checkpoint
+  - Test 1: Checkpoint with unresolvedProblems array — serialized problems in metadata.custom survive JSON roundtrip
+  - Test 2: Checkpoint with recentLearnings array — serialized learnings in metadata.custom survive JSON roundtrip
+  - Test 3: Checkpoint with learningStats — stats preserved through serialize/deserialize (totalProblems, totalSolved, solvedPostRecovery, problemsByStatus, learningsByConfidence)
+  - Test 4: Checkpoint without learning fields — backward compatible, no errors, custom is undefined
+  - Test 5: Restore checkpoint — write learning data from checkpoint metadata to new directory, verify file content matches original, stats match
+  - Test 6: solvedPostRecovery metric — create problem, checkpoint, restore, solve problem, checkpoint again, verify solvedPostRecovery=1
+- Uses real createAgent(), createCheckpoint(), computeLearningStats() — no mocks
+- Learning data stored in CheckpointMetadata.custom field (existing extensibility point)
+- All 420 tests pass (287 amcp-core + 91 amcp-memory + 26 recovery + 16 exchange), build succeeds
