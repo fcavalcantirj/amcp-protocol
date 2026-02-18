@@ -175,3 +175,22 @@
 - Added 7 tests in `packages/amcp-memory/test/validate-ontology.test.ts`
   - Valid graph, invalid JSON, missing fields, non-existent references, cycles, empty file, mixed lines
 - All 348 tests pass (287 amcp-core + 61 amcp-memory), both packages build successfully
+
+## 2026-02-18: Learning types — Problem and Learning entities (prd-v1 task 26)
+- Created `packages/amcp-memory/src/learning-types.ts` — Problem and Learning type definitions
+  - `ProblemStatus` enum: Open, Stuck, Solved, Abandoned
+  - `Problem` interface: id, description, status, blocker?, attempts, lastApproach?, retryAfter?, created, updated, resolved?, humanVerified, source, tags
+  - `LearningConfidence` enum: Tentative, Verified
+  - `Learning` interface: id, insight, sourceProblem?, confidence, humanVerified, verifiedAt?, tags, created
+  - `isProblemId()`: matches `prob_` + 8 lowercase alphanumeric chars
+  - `isLearningId()`: matches `learn_` + 8 lowercase alphanumeric chars
+  - `validateProblem()`: validates all required fields, enum values, id format
+  - `validateLearning()`: validates all required fields, enum values, id format
+- Exported all types, enums, functions from `@amcp/memory` index.ts
+- Added 16 test cases in `packages/amcp-memory/test/learning-types.test.ts`
+  - ProblemStatus enum values, LearningConfidence enum values
+  - Valid Problem passes, missing description fails, invalid status fails, invalid id fails, invalid source fails
+  - Valid Learning passes, invalid confidence fails, missing insight fails
+  - isProblemId: accepts valid, rejects invalid/wrong prefix/too short/too long/empty
+  - isLearningId: accepts valid, rejects invalid/wrong prefix/too short/too long/empty
+- All 364 tests pass (287 amcp-core + 77 amcp-memory), both packages build successfully

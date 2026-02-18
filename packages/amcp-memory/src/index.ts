@@ -16,6 +16,17 @@ export {
 export { computeCID, type CID } from './cid.js';
 export { computeGraphCID } from './graph-cid.js';
 export { validateOntologySchema, type OntologyValidationResult } from './validate-ontology.js';
+export {
+  ProblemStatus,
+  LearningConfidence,
+  isProblemId,
+  isLearningId,
+  validateProblem,
+  validateLearning,
+  type Problem,
+  type Learning,
+  type ValidationResult as LearningValidationResult,
+} from './learning-types.js';
 export { 
   createMemoryChain, 
   appendToChain, 

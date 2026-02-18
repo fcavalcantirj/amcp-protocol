@@ -428,7 +428,7 @@
       "Run: pnpm test learning-types.test.ts",
       "Verify: all 7 tests pass, type validation catches schema violations"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 1
   },
   {
