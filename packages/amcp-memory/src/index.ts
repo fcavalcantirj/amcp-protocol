@@ -17,6 +17,16 @@ export { computeCID, type CID } from './cid.js';
 export { computeGraphCID } from './graph-cid.js';
 export { validateOntologySchema, type OntologyValidationResult } from './validate-ontology.js';
 export {
+  EntityType,
+  RelationType,
+  isValidEntityType,
+  isValidRelationType,
+  type Entity,
+  type Relation,
+  type PersonEntity,
+  type EntityConstraint,
+} from './ontology-types.js';
+export {
   ProblemStatus,
   LearningConfidence,
   isProblemId,
