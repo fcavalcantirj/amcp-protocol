@@ -56,3 +56,10 @@ export {
   createRecoveryBundle,
   estimateRTO
 } from './recovery.js';
+
+// Reconstruction sequence
+export {
+  ReconstructionStep,
+  loadMemorySequence,
+  type ReconstructionProgress,
+} from './reconstruction.js';

@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@noble/ed25519':
-        specifier: ^2.3.0
-        version: 2.3.0
     devDependencies:
       esbuild:
         specifier: ^0.27.3
@@ -100,6 +96,9 @@ importers:
         specifier: workspace:*
         version: link:../amcp-memory
     devDependencies:
+      '@types/node':
+        specifier: ^25.2.2
+        version: 25.2.2
       typescript:
         specifier: ^5.4.0
         version: 5.9.3

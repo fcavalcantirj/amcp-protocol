@@ -243,3 +243,40 @@
   - Signature validity: checkpoints with ontology metadata verify correctly
   - Backward compatibility: existing checkpoints without ontology fields remain valid
 - All 431 tests pass (287 amcp-core + 102 amcp-memory + 26 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Define ontology entity types (prd-v1 task 9, Phase 2)
+- Created `packages/amcp-memory/src/ontology-types.ts` — typed graph entity and relation definitions
+  - `EntityType` enum: Person, Organization, Project, Task, Goal, Event, Location, Document, Message, Note, Account, Credential, Action, Policy (14 types)
+  - `RelationType` enum: has_owner, owns, has_task, part_of, member_of, blocks, depends_on, mentions, references (9 types)
+  - `isValidEntityType()` and `isValidRelationType()` type guard functions
+  - `Entity` interface: id, entityType, properties, created, updated
+  - `Relation` interface: from_id, relation_type, to_id, properties? (optional)
+  - `PersonEntity` concrete type: extends Entity with typed name, email?, phone?, notes?
+  - `EntityConstraint` interface: type, required_properties, forbidden_properties?, acyclic_relations?
+- Exported all types, enums, and functions from `@amcp/memory` index.ts
+- Added 18 test cases in `packages/amcp-memory/test/ontology-types.test.ts`
+  - EntityType: all 14 values, count validation
+  - RelationType: all 9 values, count validation
+  - isValidEntityType: accepts valid, rejects invalid/empty/wrong-case
+  - isValidRelationType: accepts valid, rejects invalid/empty/wrong-case
+  - Entity: valid object, arbitrary properties
+  - Relation: valid object, optional properties, undefined when omitted
+  - PersonEntity: fixed entityType, optional fields
+  - EntityConstraint: required, forbidden, acyclic relations
+- All 449 tests pass (287 amcp-core + 120 amcp-memory + 26 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Reconstruction sequence utilities (prd-v1 task 11, Phase 2)
+- Created `packages/amcp-recovery/src/reconstruction.ts` — canonical memory loading order
+  - `ReconstructionStep` enum: SOUL=0, USER=1, ONTOLOGY_SCHEMA=2, ONTOLOGY_GRAPH=3, CURATED_MEMORY=4, EPHEMERAL_NOTES=5, TOOLS=6, SEAM=7
+  - `ReconstructionProgress` type: current_step, steps_completed[], seam_crossed, errors[]
+  - `loadMemorySequence(checkpointPath, outputDir)`: orchestrates loading in canonical order
+  - SOUL.md required — halts reconstruction if missing
+  - All other files optional — skipped if missing, no errors
+  - Copies files from checkpoint directory to output directory
+  - Sets seam_crossed=true only after all steps complete
+- Added `@types/node` to amcp-recovery devDependencies, `"types": ["node"]` to tsconfig.json
+- Exported `ReconstructionStep`, `loadMemorySequence`, `ReconstructionProgress` from `@amcp/recovery` index
+- Added 9 test cases in `packages/amcp-recovery/src/reconstruction.test.ts`
+  - ReconstructionStep: canonical values 0-7, exactly 8 steps
+  - loadMemorySequence: all files present, missing SOUL fails, skips ontology, seam tracking, optional files, file copying, progress structure
+- All 458 tests pass (287 amcp-core + 120 amcp-memory + 35 recovery + 16 exchange), build succeeds

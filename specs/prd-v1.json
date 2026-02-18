@@ -123,7 +123,7 @@
       "Export all types from packages/amcp-memory/src/index.ts",
       "Verify: TypeScript strict mode passes, all entity types have proper type safety"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -172,7 +172,7 @@
       "Export from packages/amcp-recovery/src/index.ts",
       "Verify: loadMemorySequence() follows canonical order, seam_crossed only true after all steps complete, missing optional files don't block progression"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
