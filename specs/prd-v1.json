@@ -446,7 +446,7 @@
       "Run: pnpm test validate-learning.test.ts",
       "Verify: all 7 tests pass, validation catches all specified error types"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 1
   },
   {

@@ -194,3 +194,24 @@
   - isProblemId: accepts valid, rejects invalid/wrong prefix/too short/too long/empty
   - isLearningId: accepts valid, rejects invalid/wrong prefix/too short/too long/empty
 - All 364 tests pass (287 amcp-core + 77 amcp-memory), both packages build successfully
+
+## 2026-02-18: Learning validation — validateLearningData() and computeLearningStats() (prd-v1 task 27)
+- Created `packages/amcp-memory/src/validate-learning.ts` — JSONL validation and statistics
+  - `validateLearningData(dirPath)`: validates problems.jsonl, learnings.jsonl, stats.json
+    - Parses each JSONL file line-by-line, validates required fields
+    - Cross-reference: Learning.sourceProblem must reference existing Problem ID
+    - Stats consistency: stats.json totalProblems and totalSolved must match actual counts
+    - Graceful handling: missing files → zero counts, not errors
+    - Returns `LearningDataValidationResult { valid, problemCount, learningCount, errors[] }`
+  - `computeLearningStats(dirPath)`: aggregates statistics from JSONL files
+    - Counts problems by status (open, stuck, solved, abandoned)
+    - Counts learnings by confidence (tentative, verified)
+    - Returns `LearningStats { totalProblems, totalSolved, solvedPostRecovery, totalLearnings, problemsByStatus, learningsByConfidence }`
+    - Handles missing files gracefully (returns zeros)
+- Exported `validateLearningData`, `computeLearningStats`, `LearningDataValidationResult`, `LearningStats` from `@amcp/memory` index
+- Added 8 test cases in `packages/amcp-memory/test/validate-learning.test.ts`
+  - Valid directory passes, invalid JSON on line 3 fails, cross-reference to non-existent problem fails
+  - Stats totalProblems mismatch fails, empty directory returns valid with zeros
+  - Missing problems.jsonl with learnings.jsonl returns partial validation
+  - computeLearningStats matches expected counts, returns zeros for empty directory
+- All 414 tests pass (287 amcp-core + 85 amcp-memory + 26 recovery + 16 exchange), build succeeds

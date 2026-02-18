@@ -27,7 +27,13 @@ export {
   type Learning,
   type ValidationResult as LearningValidationResult,
 } from './learning-types.js';
-export { 
+export {
+  validateLearningData,
+  computeLearningStats,
+  type LearningDataValidationResult,
+  type LearningStats,
+} from './validate-learning.js';
+export {
   createMemoryChain, 
   appendToChain, 
   verifyChain,
