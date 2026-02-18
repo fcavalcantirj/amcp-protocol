@@ -63,6 +63,13 @@ export {
 } from './pinning.js';
 
 export {
+  MultiProvider,
+  type MultiProviderOptions,
+  type MultiPinResult,
+  type ProviderResult,
+} from './multi-provider.js';
+
+export {
   computeSoulHash,
   detectSoulDrift,
   type DriftResult,
