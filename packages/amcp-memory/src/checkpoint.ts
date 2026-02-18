@@ -16,6 +16,12 @@ export interface CheckpointMetadata {
   sessionCount?: number;
   /** Custom metadata */
   custom?: Record<string, unknown>;
+  /** CIDv1 of memory/ontology/graph.jsonl — omit if no ontology graph exists */
+  ontologyGraphCID?: string;
+  /** SHA-256 hash of SOUL.md content for drift detection */
+  soulHash?: string;
+  /** Reconstruction sequence step (0-7) when identity coalesced. Default: 7 = post-context-load */
+  reconstructionSeam?: number;
 }
 
 export interface MemoryCheckpoint {

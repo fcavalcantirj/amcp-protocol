@@ -227,3 +227,19 @@
 - Uses real createAgent(), createCheckpoint(), computeLearningStats() — no mocks
 - Learning data stored in CheckpointMetadata.custom field (existing extensibility point)
 - All 420 tests pass (287 amcp-core + 91 amcp-memory + 26 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Extend CheckpointMetadata with ontology fields (prd-v1 task 7, Phase 2)
+- Extended `CheckpointMetadata` interface in `packages/amcp-memory/src/checkpoint.ts`
+  - Added `ontologyGraphCID?: string` — CIDv1 of memory/ontology/graph.jsonl (omit if no ontology)
+  - Added `soulHash?: string` — SHA-256 hash of SOUL.md content for drift detection
+  - Added `reconstructionSeam?: number` — reconstruction step (0-7) when identity coalesced (default: 7 = post-context-load)
+  - All fields optional — backward compatible with existing checkpoints
+  - JSDoc comments on each field explaining purpose
+- Added 11 test cases in `packages/amcp-memory/test/checkpoint-ontology.test.ts`
+  - ontologyGraphCID: accepted in metadata, omitted when not provided
+  - soulHash: accepted in metadata, omitted when not provided
+  - reconstructionSeam: accepted values 0 and 7, omitted when not provided
+  - All three fields together: accepted simultaneously, survive JSON roundtrip
+  - Signature validity: checkpoints with ontology metadata verify correctly
+  - Backward compatibility: existing checkpoints without ontology fields remain valid
+- All 431 tests pass (287 amcp-core + 102 amcp-memory + 26 recovery + 16 exchange), build succeeds
