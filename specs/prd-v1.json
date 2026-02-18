@@ -107,7 +107,7 @@
       "Export from packages/amcp-memory/src/index.ts: export { computeGraphCID } from './graph-cid'",
       "Verify: computeGraphCID() produces deterministic CIDs (same file content = same CID), matches IPFS CID computation"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -139,7 +139,7 @@
       "Export from packages/amcp-memory/src/index.ts",
       "Verify: validateOntologySchema() rejects invalid graphs, accepts valid graphs, detects circular dependencies"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -156,7 +156,7 @@
       "Export from packages/amcp-core/src/index.ts",
       "Verify: detectSoulDrift() correctly classifies severity, diff computation matches command-line diff output"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -362,7 +362,7 @@
       "Add JSDoc comments: unresolvedProblems is serialized from memory/learning/problems.jsonl filtered by status, recentLearnings is delta since previous checkpoint, solvedPostRecovery tracks self-improvement metric",
       "Verify: TypeScript compilation succeeds, existing checkpoints without learning fields remain valid (backward compatible)"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -378,7 +378,7 @@
       "Export all types from packages/amcp-memory/src/index.ts",
       "Verify: TypeScript strict mode passes, types match protocol-09-learning-schema.json specification"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -394,7 +394,7 @@
       "Export from packages/amcp-memory/src/index.ts",
       "Verify: validateLearningData() rejects invalid data, accepts valid data, cross-references are enforced"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
@@ -410,7 +410,7 @@
       "Export from packages/amcp-memory/src/index.ts",
       "Verify: stats computation matches manual count, handles empty/missing files"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 2
   },
   {
