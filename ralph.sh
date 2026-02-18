@@ -72,7 +72,14 @@ for ((i=1; i<=$1; i++)); do
 • Crypto: use existing @noble/ed25519 dependency (see packages/amcp-core/src/crypto.ts)
 
 === WORKFLOW ===
-1. Find the highest-priority requirement in specs/prd-v1.json where passes=false and work ONLY on that.
+
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+⛔ PHASE RESTRICTION: ONLY WORK ON TASKS WHERE \"phase\": 1 ⛔
+⛔ DO NOT TOUCH phase 2 or phase 3 tasks - they are BLOCKED ⛔
+⛔ If all phase 1 tasks pass, STOP and report PHASE_1_COMPLETE ⛔
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
+1. Find the highest-priority requirement in specs/prd-v1.json where passes=false AND phase=1 and work ONLY on that.
 2. WRITE TESTS FIRST (TDD) - create .test.ts in packages/amcp-core/src/test/ BEFORE implementation.
 3. Implement minimum code to make tests pass.
 4. Run tests: cd packages/amcp-core && pnpm test
