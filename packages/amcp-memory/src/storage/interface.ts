@@ -87,6 +87,26 @@ export interface StorageBackend {
 }
 
 /**
+ * Solvr IPFS server connection details
+ */
+export interface SolvrIpfsServerConfig {
+  /** Server IP address */
+  ip: string;
+  /** Libp2p peer ID for direct connections */
+  peerId: string;
+  /** IPFS gateway URL for HTTP retrieval */
+  gatewayUrl: string;
+}
+
+/**
+ * Solvr-specific storage configuration
+ */
+export interface SolvrConfig {
+  /** IPFS server connection details */
+  ipfsServer: SolvrIpfsServerConfig;
+}
+
+/**
  * Configuration for storage backends
  */
 export interface StorageConfig {
@@ -100,6 +120,8 @@ export interface StorageConfig {
   branch?: string;
   /** Optional Pinata JWT for pinning */
   pinataJwt?: string;
+  /** Optional Solvr IPFS server configuration */
+  solvr?: SolvrConfig;
 }
 
 /**

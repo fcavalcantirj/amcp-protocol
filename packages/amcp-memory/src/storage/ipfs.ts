@@ -19,9 +19,10 @@ import {
   UnsupportedError
 } from './interface.js';
 
-// Default public IPFS gateways
+// Default public IPFS gateways (includes Solvr)
 const DEFAULT_GATEWAYS = [
   'https://gateway.pinata.cloud/ipfs/',
+  'https://ipfs.solvr.dev/ipfs/',
   'https://ipfs.io/ipfs/',
   'https://dweb.link/ipfs/',
   'https://cloudflare-ipfs.com/ipfs/'

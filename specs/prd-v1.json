@@ -623,7 +623,7 @@
       "Peer ID for direct connections: 12D3KooWJG6rZ1KWTQy1fPeaZuxhfukik3RmYTjyf76Yn6CwUP3A",
       "Verify: AMCP CLI can connect to Solvr IPFS for checkpoint retrieval"
     ],
-    "passes": false,
+    "passes": true,
     "server_info": {
       "name": "solvr-ipfs-01",
       "ip": "65.109.134.87",

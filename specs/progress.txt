@@ -129,3 +129,13 @@
   - Backward compatibility (no provider), provider integration, CID pinning verification
   - Provider name tracking, signature validity with/without provider, prior chain support
 - All 320 tests pass (277 amcp-core + 43 amcp-memory), both packages build successfully
+
+## 2026-02-18: Solvr IPFS server config (prd-v1 solvr-integration task)
+- Added Solvr types to `packages/amcp-memory/src/storage/interface.ts`
+  - `SolvrIpfsServerConfig` interface: `{ ip, peerId, gatewayUrl }`
+  - `SolvrConfig` interface: `{ ipfsServer: SolvrIpfsServerConfig }`
+  - Extended `StorageConfig` with optional `solvr?: SolvrConfig`
+- Added `https://ipfs.solvr.dev/ipfs/` to default gateways in `IPFSBackend` (2nd priority after Pinata)
+- Exported `SolvrConfig`, `SolvrIpfsServerConfig` from storage index
+- Added 4 tests in `packages/amcp-memory/test/solvr-config.test.ts`
+- All 324 tests pass (277 amcp-core + 47 amcp-memory), both packages build successfully

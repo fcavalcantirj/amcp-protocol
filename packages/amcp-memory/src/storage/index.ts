@@ -12,6 +12,8 @@
 export {
   type StorageBackend,
   type StorageConfig,
+  type SolvrConfig,
+  type SolvrIpfsServerConfig,
   StorageError,
   NotFoundError,
   UnsupportedError,
