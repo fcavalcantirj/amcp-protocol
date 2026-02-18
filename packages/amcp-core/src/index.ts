@@ -70,6 +70,12 @@ export {
 } from './multi-provider.js';
 
 export {
+  verifyPinAcrossProviders,
+  type PinVerificationResult,
+  type ProviderAvailability,
+} from './verify-pin.js';
+
+export {
   computeSoulHash,
   detectSoulDrift,
   type DriftResult,
