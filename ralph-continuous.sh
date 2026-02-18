@@ -159,8 +159,12 @@ while true; do
 
   # Check if PRD is complete before cleaning up
   prd_complete=false
+  phase1_complete=false
   if grep -q "PRD COMPLETE" "$tmplog" 2>/dev/null; then
     prd_complete=true
+  fi
+  if grep -q "PHASE_1_COMPLETE" "$tmplog" 2>/dev/null; then
+    phase1_complete=true
   fi
 
   rm -f "$tmplog"
@@ -267,15 +271,20 @@ while true; do
     echo ""
   fi
 
-  # Check if PRD is complete
-  if [ "$prd_complete" = true ]; then
+  # Check if PRD or PHASE 1 is complete
+  if [ "$prd_complete" = true ] || [ "$phase1_complete" = true ]; then
     runner_end=$(date +%s)
     total_time=$((runner_end - runner_start))
 
     echo ""
     echo -e "${GREEN}${BOLD}╔═══════════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}${BOLD}║                                                                   ║${NC}"
-    echo -e "${GREEN}${BOLD}║   🎉🎉🎉  PRD IS COMPLETE!  🎉🎉🎉                                ║${NC}"
+    if [ "$phase1_complete" = true ]; then
+      completion_msg="PHASE 1 COMPLETE!"
+    else
+      completion_msg="PRD IS COMPLETE!"
+    fi
+    echo -e "${GREEN}${BOLD}║   🎉🎉🎉  ${completion_msg}  🎉🎉🎉                                ║${NC}"
     echo -e "${GREEN}${BOLD}║                                                                   ║${NC}"
     echo -e "${GREEN}${BOLD}║   📦 Total batches:     ${batch_count}                                          ║${NC}"
     echo -e "${GREEN}${BOLD}║   🔄 Total iterations:  ${total_iterations}                                         ║${NC}"
@@ -286,7 +295,17 @@ while true; do
     echo ""
 
     # Notify via Telegram about completion!
-    send_telegram "🎉 *amcp-protocol PRD COMPLETE!* 🎉
+    if [ "$phase1_complete" = true ]; then
+      send_telegram "🎉 *amcp-protocol PHASE 1 COMPLETE!* 🎉
+
+📦 Total batches: ${batch_count}
+🔄 Total iterations: ${total_iterations}
+⏱️ Total time: $(format_time $total_time)
+📊 $(./progress.sh)
+
+Phase 1 done! Ready for Phase 2 when you are. 🚀"
+    else
+      send_telegram "🎉 *amcp-protocol PRD COMPLETE!* 🎉
 
 📦 Total batches: ${batch_count}
 🔄 Total iterations: ${total_iterations}
@@ -294,6 +313,7 @@ while true; do
 📊 $(./progress.sh)
 
 Time to celebrate! 🚀"
+    fi
 
     exit 0
   fi
