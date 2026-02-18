@@ -190,7 +190,7 @@
       "Run: pnpm test validate-ontology.test.ts",
       "Verify: all 7 tests pass, error messages are descriptive"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 1
   },
   {
@@ -226,7 +226,7 @@
       "Run: pnpm test graph-cid.test.ts",
       "Verify: all 7 tests pass, CID computation matches IPFS canonical format"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 1
   },
   {

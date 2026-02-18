@@ -14,6 +14,8 @@ export {
   type CreateCheckpointResult,
 } from './checkpoint.js';
 export { computeCID, type CID } from './cid.js';
+export { computeGraphCID } from './graph-cid.js';
+export { validateOntologySchema, type OntologyValidationResult } from './validate-ontology.js';
 export { 
   createMemoryChain, 
   appendToChain, 

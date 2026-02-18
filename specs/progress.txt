@@ -153,3 +153,25 @@
   - Hash determinism, different content, empty string, no drift, minor/moderate/major severity
   - Diff snippet presence, empty previous (initial checkpoint), no snippet when no drift
 - All 334 tests pass (287 amcp-core + 47 amcp-memory), both packages build successfully
+
+## 2026-02-18: Graph CID computation (prd-v1 testing task 14 + ontology task 8)
+- Created `packages/amcp-memory/src/graph-cid.ts` — `computeGraphCID(filePath)`
+  - Reads JSONL file, computes CIDv1 using existing `computeCID()` from cid.ts
+  - Returns null for non-existent files (graceful handling)
+  - Content-addressed: same content = same CID regardless of filename
+- Exported `computeGraphCID` from `@amcp/memory` index
+- Added 7 tests in `packages/amcp-memory/test/graph-cid.test.ts`
+  - Deterministic CID, format validation, empty file, same content, hash sensitivity, non-existent file, invalid JSON
+
+## 2026-02-18: Ontology validation (prd-v1 testing task 12 + ontology task 10)
+- Created `packages/amcp-memory/src/validate-ontology.ts` — `validateOntologySchema(filePath)`
+  - `OntologyValidationResult`: `{ valid, entity_count, relation_count, errors[] }`
+  - Entity validation: requires id, entityType, properties, created, updated
+  - Relation validation: requires from_id, relation_type, to_id
+  - Relation integrity: from_id and to_id must reference existing entity IDs
+  - Cycle detection: DFS on 'blocks' and 'depends_on' relations, detects circular dependencies
+  - Detailed error messages: "Line N: ..." format
+- Exported `validateOntologySchema`, `OntologyValidationResult` from `@amcp/memory` index
+- Added 7 tests in `packages/amcp-memory/test/validate-ontology.test.ts`
+  - Valid graph, invalid JSON, missing fields, non-existent references, cycles, empty file, mixed lines
+- All 348 tests pass (287 amcp-core + 61 amcp-memory), both packages build successfully
