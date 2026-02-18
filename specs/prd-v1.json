@@ -547,7 +547,7 @@
       "Add to checkpoint metadata: providers: { name: string, cid: string }[]",
       "Verify: MultiProvider pins to both Pinata and Solvr simultaneously"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "verification",
@@ -562,7 +562,7 @@
       "Add to resuscitate flow: verify checkpoint before restore",
       "Verify: checkpoint pinned to both Pinata and Solvr passes verification"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "metadata",
@@ -577,7 +577,7 @@
       "Backward compatible: old checkpoints without these fields still work",
       "Verify: checkpoint metadata includes provider information"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "testing",

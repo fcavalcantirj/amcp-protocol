@@ -22,6 +22,20 @@ export interface CheckpointMetadata {
   soulHash?: string;
   /** Reconstruction sequence step (0-7) when identity coalesced. Default: 7 = post-context-load */
   reconstructionSeam?: number;
+  /** Pinning providers that stored this checkpoint's content */
+  pinningProviders?: PinningProviderEntry[];
+  /** Which provider to use for retrieval (should match a name in pinningProviders) */
+  primaryProvider?: string;
+}
+
+/** Record of a pinning provider that stored checkpoint content */
+export interface PinningProviderEntry {
+  /** Provider name (e.g. 'pinata', 'solvr') */
+  name: string;
+  /** CID stored by this provider */
+  cid: string;
+  /** Provider-specific request ID for tracking */
+  requestId?: string;
 }
 
 export interface MemoryCheckpoint {

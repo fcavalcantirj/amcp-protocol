@@ -10,6 +10,7 @@ export {
   verifyCheckpoint,
   type MemoryCheckpoint,
   type CheckpointMetadata,
+  type PinningProviderEntry,
   type CreateCheckpointOptions,
   type CreateCheckpointResult,
 } from './checkpoint.js';

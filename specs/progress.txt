@@ -280,3 +280,49 @@
   - ReconstructionStep: canonical values 0-7, exactly 8 steps
   - loadMemorySequence: all files present, missing SOUL fails, skips ontology, seam tracking, optional files, file copying, progress structure
 - All 458 tests pass (287 amcp-core + 120 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Multi-provider pinning support (prd-v1 task 23, Phase 2)
+- Created `packages/amcp-core/src/multi-provider.ts` — pin to multiple services for redundancy
+  - `MultiProvider` class implements `PinningProvider` interface
+  - Constructor accepts `PinningProvider[]` and `MultiProviderOptions`
+  - `requireAll` mode: all providers must succeed (throws if any fail)
+  - `requireOne` mode (default): succeeds if at least one provider succeeds
+  - `pin()`: calls all providers in parallel via `Promise.allSettled()`
+  - `pinWithDetails()`: returns `MultiPinResult` with per-provider tracking
+  - `unpin()`: best-effort unpin from all providers
+  - `status()`: returns Pinned if any provider reports Pinned
+  - `ProviderResult` type: { provider, success, cid?, error? }
+  - `MultiPinResult` type: { cid, requestId, status, providerResults[] }
+- Exported `MultiProvider`, `MultiProviderOptions`, `MultiPinResult`, `ProviderResult` from `@amcp/core` index
+- Added 12 test cases in `packages/amcp-core/src/test/multi-provider.test.ts`
+  - Interface compliance, constructor, requireOne (parallel pin, partial failure, all-fail)
+  - requireAll (all succeed, any fail), result tracking, partial failure details
+  - unpin from all, status aggregation
+- All 470 tests pass (299 amcp-core + 120 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Cross-provider CID verification (prd-v1 task 24, Phase 2)
+- Created `packages/amcp-core/src/verify-pin.ts` — cross-provider CID availability checking
+  - `verifyPinAcrossProviders(cid, providers[])`: checks all providers in parallel
+  - `PinVerificationResult` type: { verified, providers[], contentMatch }
+  - `ProviderAvailability` type: { name, available }
+  - `verified`: true if at least one provider has the CID pinned
+  - `contentMatch`: true if all providers agree (CIDs are content-addressed = same hash)
+  - Handles unreachable providers gracefully (counts as unavailable)
+- Exported `verifyPinAcrossProviders`, `PinVerificationResult`, `ProviderAvailability` from `@amcp/core` index
+- Added 9 test cases in `packages/amcp-core/src/test/verify-pin.test.ts`
+  - All providers pinned, none pinned, partial availability, content match semantics
+  - Unreachable providers, result structure, single provider, empty provider list
+- All 479 tests pass (308 amcp-core + 120 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-18: Extend CheckpointMetadata with pinning provider info (prd-v1 task 25, Phase 2)
+- Extended `CheckpointMetadata` in `packages/amcp-memory/src/checkpoint.ts`
+  - Added `pinningProviders?: PinningProviderEntry[]` — tracks which providers stored the content
+  - Added `primaryProvider?: string` — which provider to use for retrieval
+  - `PinningProviderEntry` interface: { name, cid, requestId? }
+  - All fields optional — backward compatible with existing checkpoints
+- Exported `PinningProviderEntry` from `@amcp/memory` index.ts
+- Added 9 test cases in `packages/amcp-memory/test/checkpoint-providers.test.ts`
+  - pinningProviders: accepted array, optional requestId, omitted when not provided
+  - primaryProvider: accepted string, omitted when not provided
+  - Both fields together, JSON roundtrip, signature valid, backward compatibility
+- All 488 tests pass (308 amcp-core + 129 amcp-memory + 35 recovery + 16 exchange), build succeeds
