@@ -62,5 +62,12 @@ export {
   type SolvrProviderConfig,
 } from './pinning.js';
 
+export {
+  computeSoulHash,
+  detectSoulDrift,
+  type DriftResult,
+  type DriftSeverity,
+} from './soul-drift.js';
+
 // Re-export all types from types module
 export * from './types/index.js';

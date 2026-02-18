@@ -139,3 +139,17 @@
 - Exported `SolvrConfig`, `SolvrIpfsServerConfig` from storage index
 - Added 4 tests in `packages/amcp-memory/test/solvr-config.test.ts`
 - All 324 tests pass (277 amcp-core + 47 amcp-memory), both packages build successfully
+
+## 2026-02-18: SOUL drift detection utilities (prd-v1 testing task 13 + ontology task 11)
+- Created `packages/amcp-core/src/soul-drift.ts` — SOUL identity change detection
+  - `computeSoulHash(content)`: SHA-256 hash using @noble/hashes/sha256
+  - `detectSoulDrift(prevHash, currHash, prevContent, currContent)`: DriftResult
+  - `DriftResult` type: `{ drifted, severity, lines_changed, diff_snippet? }`
+  - `DriftSeverity` type: 'none' | 'minor' | 'moderate' | 'major'
+  - Positional line diff algorithm: changed line at same position = 1 change
+  - Severity thresholds: 0=none, 1-4=minor, 5-20=moderate, >20=major
+- Exported `computeSoulHash`, `detectSoulDrift`, `DriftResult`, `DriftSeverity` from `@amcp/core` index
+- Added 10 test cases in `packages/amcp-core/src/test/soul-drift.test.ts`
+  - Hash determinism, different content, empty string, no drift, minor/moderate/major severity
+  - Diff snippet presence, empty previous (initial checkpoint), no snippet when no drift
+- All 334 tests pass (287 amcp-core + 47 amcp-memory), both packages build successfully

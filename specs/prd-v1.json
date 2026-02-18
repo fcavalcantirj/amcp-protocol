@@ -208,7 +208,7 @@
       "Run: pnpm test soul-drift.test.ts",
       "Verify: all 7 tests pass, severity thresholds match specification (0, 1-4, 5-20, >20)"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 1
   },
   {
