@@ -245,7 +245,7 @@
       "Reference academic sources: AriGraph (IJCAI 2025), Zep/Graphiti, A-MEM (NeurIPS 2025), LumenNox phenomenology work",
       "Verify: documentation is technically accurate, protocol version incremented if breaking changes (increment to 0.3 if breaking changes)"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
@@ -481,7 +481,7 @@
       "Document trigger types: command prefix (/remember, /stuck, /learned), SKILL matching, self-detect",
       "Verify: documentation matches TypeScript types, all fields documented with JSDoc-style descriptions"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
@@ -610,7 +610,7 @@
       "Include code examples for custom provider implementation",
       "Verify: documentation matches implementation"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "solvr-integration",

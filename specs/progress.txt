@@ -373,3 +373,13 @@
   - checkPreconditions: condition met, condition failed with violations, skips non-matching types
   - detectConflicts: incompatible postconditions, compatible contracts, single contract, empty array
 - All 518 tests pass (319 amcp-core + 148 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-19: AMCP-SPEC documentation updates (prd-v1 tasks 15, 22, 30, Phase 3)
+- Updated `AMCP-SPEC-v0.2.md` with three new specification sections:
+  - **Section 15: Layer 1 Ontology** — three-layer architecture, JSONL graph format, entity/relation types, validation requirements, checkpoint metadata extensions (ontologyGraphCID, soulHash, reconstructionSeam, evolutionChainCID, relatedEntitiesCount), SOUL drift detection, reconstruction sequence, temporal index, skill contracts
+  - **Section 16: Learning Layer** — Problem and Learning entity schemas with JSON examples, checkpoint metadata extensions (unresolvedProblems, recentLearnings, learningStats), capability growth metric (solvedPostRecovery/totalSolved)
+  - **Section 17: Pinning Providers** — PinningProvider interface, built-in providers (Pinata, Solvr), MultiProvider redundancy pattern, checkpoint metadata extensions (pinningProviders, primaryProvider), cross-provider verification
+  - **Section 19: References** — AriGraph, Zep/Graphiti, A-MEM, LumenNox
+  - Version history updated to 0.2.1 (non-breaking additive changes)
+- Renumbered sections: Implementations → 18, References → 19, Version History → 20
+- All 518 tests pass (no code changes), build succeeds
