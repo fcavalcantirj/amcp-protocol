@@ -34,7 +34,7 @@ send_telegram() {
     curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
       -d "chat_id=${TELEGRAM_CHAT_ID}" \
       -d "text=${message}" \
-      -d "parse_mode=Markdown" > /dev/null 2>&1
+      -d "parse_mode=Markdown" >> /tmp/telegram-debug.log 2>&1
   fi
 }
 
@@ -160,7 +160,7 @@ while true; do
   # Check if PRD is complete before cleaning up
   prd_complete=false
   phase1_complete=false
-  if grep -q "PHASE_2_COMPLETE\|PRD COMPLETE" "$tmplog" 2>/dev/null; then
+  if grep -q "PHASE_3_COMPLETE\|PRD COMPLETE" "$tmplog" 2>/dev/null; then
     prd_complete=true
   fi
   if grep -q "PHASE_1_COMPLETE" "$tmplog" 2>/dev/null; then
@@ -282,7 +282,7 @@ while true; do
     if [ "$phase1_complete" = true ]; then
       completion_msg="PHASE 1 COMPLETE!"
     else
-      completion_msg="PHASE 2 COMPLETE!"
+      completion_msg="PHASE 3 COMPLETE!"
     fi
     echo -e "${GREEN}${BOLD}║   🎉🎉🎉  ${completion_msg}  🎉🎉🎉                                ║${NC}"
     echo -e "${GREEN}${BOLD}║                                                                   ║${NC}"
@@ -305,7 +305,7 @@ while true; do
 
 Phase 1 done! Ready for Phase 2 when you are. 🚀"
     else
-      send_telegram "🎉 *amcp-protocol PHASE 2 COMPLETE!* 🎉
+      send_telegram "🎉 *amcp-protocol PHASE 3 COMPLETE!* 🎉
 
 📦 Total batches: ${batch_count}
 🔄 Total iterations: ${total_iterations}

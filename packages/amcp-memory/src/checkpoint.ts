@@ -26,6 +26,10 @@ export interface CheckpointMetadata {
   pinningProviders?: PinningProviderEntry[];
   /** Which provider to use for retrieval (should match a name in pinningProviders) */
   primaryProvider?: string;
+  /** CID of evolution.jsonl containing relation inference history (A-MEM pattern) */
+  evolutionChainCID?: string;
+  /** Count of entities updated by evolution engine since last checkpoint */
+  relatedEntitiesCount?: number;
 }
 
 /** Record of a pinning provider that stored checkpoint content */

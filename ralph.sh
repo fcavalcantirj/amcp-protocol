@@ -74,12 +74,12 @@ for ((i=1; i<=$1; i++)); do
 === WORKFLOW ===
 
 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-⛔ PHASE RESTRICTION: ONLY WORK ON TASKS WHERE \"phase\": 2 ⛔
-⛔ DO NOT TOUCH phase 1 or phase 3 tasks - they are BLOCKED ⛔
-⛔ If all phase 2 tasks pass, STOP and report PHASE_2_COMPLETE ⛔
+⛔ PHASE RESTRICTION: ONLY WORK ON TASKS WHERE \"phase\": 3 ⛔
+⛔ DO NOT TOUCH phase 1 or phase 2 tasks - they are COMPLETE ⛔
+⛔ If all phase 3 tasks pass, STOP and report PHASE_3_COMPLETE ⛔
 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 
-1. Find the highest-priority requirement in specs/prd-v1.json where passes=false AND phase=2 and work ONLY on that.
+1. Find the highest-priority requirement in specs/prd-v1.json where passes=false AND phase=3 and work ONLY on that.
 2. WRITE TESTS FIRST (TDD) - create .test.ts in packages/amcp-core/src/test/ BEFORE implementation.
 3. Implement minimum code to make tests pass.
 4. Run tests: cd packages/amcp-core && pnpm test

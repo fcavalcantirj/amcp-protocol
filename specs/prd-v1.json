@@ -259,7 +259,7 @@
       "Modify serializeCheckpoint() to include new fields in JSON output (backward compatible — omit if undefined)",
       "Verify: TypeScript compilation succeeds, checkpoints with evolution tracking serialize correctly, checkpoints without evolution fields remain valid"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
@@ -276,7 +276,7 @@
       "Run: pnpm test evolution-tracking.test.ts",
       "Verify: all 6 tests pass, evolution metadata persists correctly"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {

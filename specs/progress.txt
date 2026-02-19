@@ -326,3 +326,17 @@
   - primaryProvider: accepted string, omitted when not provided
   - Both fields together, JSON roundtrip, signature valid, backward compatibility
 - All 488 tests pass (308 amcp-core + 129 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-19: Evolution tracking in CheckpointMetadata (prd-v1 tasks 16+17, Phase 3)
+- Extended `CheckpointMetadata` in `packages/amcp-memory/src/checkpoint.ts`
+  - Added `evolutionChainCID?: string` — CID of evolution.jsonl containing relation inference history (A-MEM pattern)
+  - Added `relatedEntitiesCount?: number` — count of entities updated by evolution engine since last checkpoint
+  - Both fields optional — backward compatible with existing checkpoints
+  - JSDoc comments on each field explaining purpose
+- Added 9 test cases in `packages/amcp-memory/test/evolution-tracking.test.ts`
+  - evolutionChainCID: accepted in metadata, omitted when not provided
+  - relatedEntitiesCount: accepted values 5 and 0, omitted when not provided
+  - Both fields together: accepted simultaneously, survive JSON roundtrip
+  - Signature validity: checkpoints with evolution metadata verify correctly
+  - Backward compatibility: existing checkpoints without evolution fields remain valid
+- All 497 tests pass (308 amcp-core + 138 amcp-memory + 35 recovery + 16 exchange), build succeeds
