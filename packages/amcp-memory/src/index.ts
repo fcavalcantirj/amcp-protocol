@@ -45,6 +45,14 @@ export {
   type LearningStats,
 } from './validate-learning.js';
 export {
+  buildTemporalIndex,
+  queryByTimeRange,
+  getEntityHistory,
+  type TemporalIndex,
+  type TemporalIndexEntry,
+  type CheckpointSnapshot,
+} from './temporal-index.js';
+export {
   createMemoryChain, 
   appendToChain, 
   verifyChain,

@@ -340,3 +340,19 @@
   - Signature validity: checkpoints with evolution metadata verify correctly
   - Backward compatibility: existing checkpoints without evolution fields remain valid
 - All 497 tests pass (308 amcp-core + 138 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-19: Temporal index utilities (prd-v1 tasks 18+19, Phase 3)
+- Created `packages/amcp-memory/src/temporal-index.ts` — entity version tracking across checkpoints
+  - `CheckpointSnapshot` type: input format with cid, timestamp, entities array
+  - `TemporalIndexEntry` type: entity_id, checkpoint_cid, timestamp, version_hash, properties_snapshot
+  - `TemporalIndex` type: Map<string, TemporalIndexEntry[]> sorted chronologically
+  - `buildTemporalIndex(snapshots)`: builds per-entity timelines sorted by timestamp
+  - `getEntityHistory(index, entity_id)`: returns full version timeline, empty array if not found
+  - `queryByTimeRange(index, entity_id, start?, end?)`: filters by date range (inclusive)
+  - `computeVersionHash()`: SHA-256 of canonical JSON for change detection
+- Exported all types and functions from `@amcp/memory` index.ts
+- Added 10 test cases in `packages/amcp-memory/test/temporal-index.test.ts`
+  - buildTemporalIndex: 3 snapshots sorted, deterministic output, empty input
+  - getEntityHistory: 2 versions, non-existent entity, unchanged properties detection
+  - queryByTimeRange: date filtering, entity after range, no bounds, timezone handling
+- All 507 tests pass (308 amcp-core + 148 amcp-memory + 35 recovery + 16 exchange), build succeeds

@@ -292,7 +292,7 @@
       "Export from packages/amcp-memory/src/index.ts: export { buildTemporalIndex, queryByTimeRange, getEntityHistory, TemporalIndex, TemporalIndexEntry } from './temporal-index'",
       "Verify: buildTemporalIndex() produces deterministic index, queryByTimeRange() filters correctly, entity with no history returns empty array (not error)"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
@@ -311,7 +311,7 @@
       "Run: pnpm test temporal-index.test.ts",
       "Verify: all 8 tests pass, temporal queries accurate, time filtering works across checkpoints"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
