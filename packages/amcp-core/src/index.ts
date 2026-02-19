@@ -82,5 +82,18 @@ export {
   type DriftSeverity,
 } from './soul-drift.js';
 
+export {
+  validateContract,
+  checkPreconditions,
+  detectConflicts,
+  type SkillOntologyContract,
+  type ContractPredicate,
+  type ContractEntity,
+  type ContractValidationResult,
+  type CheckResult,
+  type ConflictResult,
+  type PreconditionViolation,
+} from './skill-contract.js';
+
 // Re-export all types from types module
 export * from './types/index.js';

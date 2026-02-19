@@ -356,3 +356,20 @@
   - getEntityHistory: 2 versions, non-existent entity, unchanged properties detection
   - queryByTimeRange: date filtering, entity after range, no bounds, timezone handling
 - All 507 tests pass (308 amcp-core + 148 amcp-memory + 35 recovery + 16 exchange), build succeeds
+
+## 2026-02-19: Skill contract types and validation (prd-v1 tasks 20+21, Phase 3)
+- Created `packages/amcp-core/src/skill-contract.ts` — skill ontology contract types and validation
+  - `SkillOntologyContract` interface: skill_name, version, ontology { reads, writes, preconditions, postconditions }
+  - `ContractPredicate` type: entity_type, condition, description? — condition format: "prop exists", "prop = value", "prop != value"
+  - `ContractEntity` type: simplified entity for precondition checking
+  - `validateContract()`: validates required fields and entity type references against VALID_ENTITY_TYPES set
+  - `checkPreconditions()`: evaluates preconditions against matching entities, returns violations with entity IDs
+  - `detectConflicts()`: finds contradictory postconditions across contracts sharing write types
+  - Condition parser supports: "exists", "=", "!=" operators
+  - Conflict detection: "prop = X" vs "prop != X", "prop = X" vs "prop = Y" (where X != Y)
+- Exported all types and functions from `@amcp/core` index.ts
+- Added 11 test cases in `packages/amcp-core/src/test/skill-contract.test.ts`
+  - validateContract: valid contract, missing skill_name, invalid EntityType, empty preconditions
+  - checkPreconditions: condition met, condition failed with violations, skips non-matching types
+  - detectConflicts: incompatible postconditions, compatible contracts, single contract, empty array
+- All 518 tests pass (319 amcp-core + 148 amcp-memory + 35 recovery + 16 exchange), build succeeds

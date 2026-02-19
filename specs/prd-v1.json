@@ -328,7 +328,7 @@
       "Export from packages/amcp-core/src/index.ts: export types and validator functions",
       "Verify: TypeScript strict mode passes, contract types are self-documenting with JSDoc comments"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
@@ -348,7 +348,7 @@
       "Run: pnpm test skill-contract.test.ts",
       "Verify: all 9 tests pass, contract validation catches malformed contracts, precondition evaluation works"
     ],
-    "passes": false,
+    "passes": true,
     "phase": 3
   },
   {
