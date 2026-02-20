@@ -18,6 +18,13 @@
 
 set -e
 
+# === DYNAMIC PATH SETUP (for cron environment) ===
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+OPENCLAW_BIN=$(command -v openclaw 2>/dev/null || find "$HOME/.nvm" -name openclaw -type f 2>/dev/null | head -1 || echo "openclaw")
+# === END PATH SETUP ===
+
 OPENCLAW_DIR="${OPENCLAW_DIR:-$HOME/.openclaw}"
 LOG_FILE="/tmp/amcp-health-check.log"
 MAX_ERRORS=3  # Trigger recovery after N consecutive errors
@@ -39,7 +46,7 @@ check_process() {
 # Check 2: Can we reach the gateway status endpoint?
 check_status_endpoint() {
     local response
-    response=$(openclaw gateway status 2>&1) || true
+    response=$($OPENCLAW_BIN gateway status 2>&1) || true
     
     if echo "$response" | grep -q "running"; then
         log "OK: Gateway status endpoint responding"

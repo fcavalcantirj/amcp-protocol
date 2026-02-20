@@ -7,9 +7,22 @@
 # 2. Session corrupted (400 loop)
 # 3. Auth expired (401)
 #
-# Usage: */5 * * * * /home/clawdbot/clawd/amcp-protocol/scripts/amcp-watchdog.sh
+# Usage: */5 * * * * /path/to/amcp-watchdog.sh
 
 set -e
+
+# === DYNAMIC PATH SETUP (for cron environment) ===
+# Cron runs with minimal PATH. Source NVM if available.
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+# Find openclaw binary dynamically
+OPENCLAW_BIN=$(command -v openclaw 2>/dev/null || find "$HOME/.nvm" -name openclaw -type f 2>/dev/null | head -1 || echo "")
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "[$(date -Iseconds)] ERROR: openclaw not found in PATH or NVM" >> /tmp/amcp-watchdog.log
+    exit 1
+fi
+# === END PATH SETUP ===
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="/tmp/amcp-watchdog.log"
@@ -48,7 +61,7 @@ case $health_status in
         ;;
     1)
         log "ACTION: Gateway down — restarting"
-        openclaw gateway restart >> "$LOG_FILE" 2>&1 || true
+        $OPENCLAW_BIN gateway restart >> "$LOG_FILE" 2>&1 || true
         sleep 5
         # Notify human
         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
@@ -59,7 +72,7 @@ case $health_status in
         log "ACTION: Session corrupted — running repair script"
         python3 "$SCRIPT_DIR/fix-openclaw-session.py" --fix >> "$LOG_FILE" 2>&1 || true
         # Restart gateway after repair
-        openclaw gateway restart >> "$LOG_FILE" 2>&1 || true
+        $OPENCLAW_BIN gateway restart >> "$LOG_FILE" 2>&1 || true
         sleep 5
         # Notify human
         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
